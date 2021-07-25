@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "66599301490",
+    "project_id": "chattrap-52d8e",
+    "storage_bucket": "chattrap-52d8e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:66599301490:android:14c6f762bf34196bcf6deb",
+        "android_client_info": {
+          "package_name": "com.example.chattrap"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "66599301490-vbjadqqh4cp9d8rahv9grc6jieh3gdvq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.chattrap",
+            "certificate_hash": "1f7b326098f60cf61c3abb853392957dc1a8868c"
+          }
+        },
+        {
+          "client_id": "66599301490-hj0o5aggdc6t2j7vtiupt793ci7b65mh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDo0jNDo438-Vaxm98newoy2tPLJpx0HBk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "66599301490-hj0o5aggdc6t2j7vtiupt793ci7b65mh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
