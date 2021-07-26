@@ -1,4 +1,4 @@
-package com.example.chattrap;
+package com.example.chattrap.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 

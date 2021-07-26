@@ -1,25 +1,19 @@
-package com.example.chattrap;
+package com.example.chattrap.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
 import com.example.chattrap.databinding.ActivityOTPBinding;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.mukesh.OnOtpCompletionListener;
 
 import java.util.concurrent.TimeUnit;
 

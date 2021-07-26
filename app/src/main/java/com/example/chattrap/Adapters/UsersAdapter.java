@@ -1,4 +1,4 @@
-package com.example.chattrap;
+package com.example.chattrap.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +10,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.chattrap.Activities.ChatActivity;
+import com.example.chattrap.R;
+import com.example.chattrap.Models.User;
 import com.example.chattrap.databinding.RowConversationBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -107,7 +110,6 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UsersViewHol
 
     public class UsersViewHolder extends RecyclerView.ViewHolder
     {
-
         RowConversationBinding binding;
 
         public UsersViewHolder(@NonNull View itemView)

@@ -1,4 +1,4 @@
-package com.example.chattrap;
+package com.example.chattrap.Models;
 
 public class User {
     private String uid, name, phoneNumber, profileImage;
