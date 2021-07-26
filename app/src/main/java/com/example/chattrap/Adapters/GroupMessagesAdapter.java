@@ -11,20 +11,24 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.chattrap.Models.Message;
+import com.example.chattrap.Models.User;
+import com.example.chattrap.R;
+import com.example.chattrap.databinding.ItemReceiveGroupBinding;
+import com.example.chattrap.databinding.ItemSentGroupBinding;
 import com.example.chattrap.databinding.DeleteDialogBinding;
 import com.github.pgreze.reactions.ReactionPopup;
 import com.github.pgreze.reactions.ReactionsConfig;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
-import com.example.chattrap.Models.Message;
-import com.example.chattrap.R;
-import com.example.chattrap.databinding.ItemReciveBinding;
-import com.example.chattrap.databinding.ItemSendBinding;
 import com.github.pgreze.reactions.ReactionsConfigBuilder;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class MessagesAdapter extends RecyclerView.Adapter {
+public class GroupMessagesAdapter extends RecyclerView.Adapter {
 
     Context context;
     ArrayList<Message> messages;
@@ -32,51 +36,35 @@ public class MessagesAdapter extends RecyclerView.Adapter {
     final int ITEM_SENT = 1;
     final int ITEM_RECEIVE = 2;
 
-    String senderRoom;
-    String receiverRoom;
-
-    public MessagesAdapter(Context context, ArrayList<Message> messages, String senderRoom, String receiverRoom)
-    {
+    public GroupMessagesAdapter(Context context, ArrayList<Message> messages) {
         this.context = context;
         this.messages = messages;
-        this.senderRoom = senderRoom;
-        this.receiverRoom = receiverRoom;
     }
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
-    {
-        if(viewType == ITEM_SENT)
-        {
-            View view = LayoutInflater.from(context).inflate(R.layout.item_send, parent, false);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if(viewType == ITEM_SENT) {
+            View view = LayoutInflater.from(context).inflate(R.layout.item_sent_group, parent, false);
             return new SentViewHolder(view);
-        }
-        else
-            {
-            View view = LayoutInflater.from(context).inflate(R.layout.item_recive, parent, false);
+        } else {
+            View view = LayoutInflater.from(context).inflate(R.layout.item_receive_group, parent, false);
             return new ReceiverViewHolder(view);
         }
     }
 
     @Override
-    public int getItemViewType(int position)
-    {
+    public int getItemViewType(int position) {
         Message message = messages.get(position);
-
-        if(FirebaseAuth.getInstance().getUid().equals(message.getSenderId()))
-        {
+        if(FirebaseAuth.getInstance().getUid().equals(message.getSenderId())) {
             return ITEM_SENT;
-        }
-        else
-            {
+        } else {
             return ITEM_RECEIVE;
         }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position)
-    {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Message message = messages.get(position);
 
         int reactions[] = new int[]{
@@ -88,36 +76,27 @@ public class MessagesAdapter extends RecyclerView.Adapter {
                 R.drawable.ic_fb_angry
         };
 
-        ReactionsConfig config = new ReactionsConfigBuilder(context).withReactions(reactions).build();
+        ReactionsConfig config = new ReactionsConfigBuilder(context)
+                .withReactions(reactions)
+                .build();
 
-        ReactionPopup popup = new ReactionPopup(context, config, (pos) ->
-        {
-            if(holder.getClass() == SentViewHolder.class)
-            {
+        ReactionPopup popup = new ReactionPopup(context, config, (pos) -> {
+            if(holder.getClass() == SentViewHolder.class) {
                 SentViewHolder viewHolder = (SentViewHolder)holder;
-
                 viewHolder.binding.feeling.setImageResource(reactions[pos]);
                 viewHolder.binding.feeling.setVisibility(View.VISIBLE);
-            }
-            else {
-                ReceiverViewHolder viewHolder = (ReceiverViewHolder) holder;
-
+            } else {
+                ReceiverViewHolder viewHolder = (ReceiverViewHolder)holder;
                 viewHolder.binding.feeling.setImageResource(reactions[pos]);
                 viewHolder.binding.feeling.setVisibility(View.VISIBLE);
+
+
             }
 
             message.setFeeling(pos);
 
             FirebaseDatabase.getInstance().getReference()
-                    .child("chats")
-                    .child(senderRoom)
-                    .child("messages")
-                    .child(message.getMessageId()).setValue(message);
-
-            FirebaseDatabase.getInstance().getReference()
-                    .child("chats")
-                    .child(receiverRoom)
-                    .child("messages")
+                    .child("public")
                     .child(message.getMessageId()).setValue(message);
 
 
@@ -137,6 +116,24 @@ public class MessagesAdapter extends RecyclerView.Adapter {
                         .placeholder(R.drawable.placeholder)
                         .into(viewHolder.binding.image);
             }
+
+            FirebaseDatabase.getInstance()
+                    .getReference().child("users")
+                    .child(message.getSenderId())
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if(snapshot.exists()) {
+                                User user = snapshot.getValue(User.class);
+                                viewHolder.binding.name.setText("@" + user.getName());
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
 
             viewHolder.binding.message.setText(message.getMessage());
 
@@ -179,16 +176,9 @@ public class MessagesAdapter extends RecyclerView.Adapter {
                             message.setMessage("This message is removed.");
                             message.setFeeling(-1);
                             FirebaseDatabase.getInstance().getReference()
-                                    .child("chats")
-                                    .child(senderRoom)
-                                    .child("messages")
+                                    .child("public")
                                     .child(message.getMessageId()).setValue(message);
 
-                            FirebaseDatabase.getInstance().getReference()
-                                    .child("chats")
-                                    .child(receiverRoom)
-                                    .child("messages")
-                                    .child(message.getMessageId()).setValue(message);
                             dialog.dismiss();
                         }
                     });
@@ -197,9 +187,7 @@ public class MessagesAdapter extends RecyclerView.Adapter {
                         @Override
                         public void onClick(View v) {
                             FirebaseDatabase.getInstance().getReference()
-                                    .child("chats")
-                                    .child(senderRoom)
-                                    .child("messages")
+                                    .child("public")
                                     .child(message.getMessageId()).setValue(null);
                             dialog.dismiss();
                         }
@@ -227,6 +215,23 @@ public class MessagesAdapter extends RecyclerView.Adapter {
                         .placeholder(R.drawable.placeholder)
                         .into(viewHolder.binding.image);
             }
+            FirebaseDatabase.getInstance()
+                    .getReference().child("users")
+                    .child(message.getSenderId())
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if(snapshot.exists()) {
+                                User user = snapshot.getValue(User.class);
+                                viewHolder.binding.name.setText("@" + user.getName());
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
             viewHolder.binding.message.setText(message.getMessage());
 
             if(message.getFeeling() >= 0) {
@@ -269,16 +274,9 @@ public class MessagesAdapter extends RecyclerView.Adapter {
                             message.setMessage("This message is removed.");
                             message.setFeeling(-1);
                             FirebaseDatabase.getInstance().getReference()
-                                    .child("chats")
-                                    .child(senderRoom)
-                                    .child("messages")
+                                    .child("public")
                                     .child(message.getMessageId()).setValue(message);
 
-                            FirebaseDatabase.getInstance().getReference()
-                                    .child("chats")
-                                    .child(receiverRoom)
-                                    .child("messages")
-                                    .child(message.getMessageId()).setValue(message);
                             dialog.dismiss();
                         }
                     });
@@ -287,9 +285,7 @@ public class MessagesAdapter extends RecyclerView.Adapter {
                         @Override
                         public void onClick(View v) {
                             FirebaseDatabase.getInstance().getReference()
-                                    .child("chats")
-                                    .child(senderRoom)
-                                    .child("messages")
+                                    .child("public")
                                     .child(message.getMessageId()).setValue(null);
                             dialog.dismiss();
                         }
@@ -317,21 +313,20 @@ public class MessagesAdapter extends RecyclerView.Adapter {
 
     public class SentViewHolder extends RecyclerView.ViewHolder {
 
-        ItemSendBinding binding;
+        ItemSentGroupBinding binding;
         public SentViewHolder(@NonNull View itemView) {
             super(itemView);
-            binding = ItemSendBinding.bind(itemView);
+            binding = ItemSentGroupBinding.bind(itemView);
         }
     }
 
     public class ReceiverViewHolder extends RecyclerView.ViewHolder {
 
-        ItemReciveBinding binding;
+        ItemReceiveGroupBinding binding;
 
         public ReceiverViewHolder(@NonNull View itemView) {
             super(itemView);
-            binding = ItemReciveBinding.bind(itemView);
+            binding = ItemReceiveGroupBinding.bind(itemView);
         }
     }
-
 }
