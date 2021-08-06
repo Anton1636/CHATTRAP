@@ -16,21 +16,25 @@
         android:layout_height="48dp"
         android:src="@drawable/avatar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@color/mainColor"/>
 
     <TextView
         android:id="@+id/username"
+        android:background="@color/mainColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="Sample Name"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/profile"
         app:layout_constraintTop_toTopOf="@+id/profile" />
 
     <TextView
+        android:background="@color/mainColor"
+        android:textColor="@color/white"
         android:id="@+id/lastMsg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -40,6 +44,8 @@
         app:layout_constraintTop_toBottomOf="@+id/username" />
 
     <TextView
+        android:background="@color/mainColor"
+        android:textColor="@color/white"
         android:id="@+id/msgTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

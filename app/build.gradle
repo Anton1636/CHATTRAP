@@ -45,7 +45,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     //For OTP
-    implementation 'com.github.mukeshsolanki:android-otpview-pinview:2.1.2'
+    implementation 'com.hbb20:ccp:2.3.1'
+    implementation 'com.chaos.view:pinview:1.4.3'
 
     //Firebase
     implementation platform('com.google.firebase:firebase-bom:28.3.0')
@@ -72,5 +73,6 @@ dependencies {
     //...
     implementation 'com.github.sharish:ShimmerRecyclerView:v1.3'
 
-
+    //MaterialDesign
+    implementation 'com.google.android.material:material:1.4.0'
 }

@@ -47,7 +47,7 @@
         app:layout_constraintTop_toBottomOf="@+id/phoneLabel" />
 
     <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
+        android:layout_width="418dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
@@ -59,7 +59,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView4">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="418dp"
             android:layout_height="match_parent"
             android:layout_margin="10dp"
             android:background="@color/mainColor"
@@ -67,7 +67,7 @@
 
             <com.mukesh.OtpView
                 android:id="@+id/otp_view"
-                android:layout_width="wrap_content"
+                android:layout_width="340dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="5dp"
@@ -78,13 +78,18 @@
                 app:OtpItemCount="6"
                 app:OtpViewType="line" />
 
-            <Button
-                android:id="@+id/continueBtn"
-                android:layout_width="match_parent"
-                android:layout_height="90dp"
-                android:layout_marginTop="10dp"
-                android:backgroundTint="@color/mainColor"
-                android:text="Continue" />
         </LinearLayout>
+
+
     </androidx.cardview.widget.CardView>
+
+    <Button
+        android:id="@+id/continueBtn"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:backgroundTint="@color/mainColor"
+        android:text="Continue"
+        tools:layout_editor_absoluteX="-16dp"
+        tools:layout_editor_absoluteY="572dp"
+        tools:ignore="MissingConstraints" />
 </androidx.constraintlayout.widget.ConstraintLayout>

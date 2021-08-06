@@ -10,7 +10,7 @@
         android:id="@+id/linearLayout2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/receive_drawable"
+        android:background="@color/mainColor"
         android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -21,6 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:textSize="12dp"
+            android:textColor="@color/white"
             android:textStyle="bold" />
 
         <View
@@ -39,6 +40,7 @@
             app:srcCompat="@drawable/avatar" />
 
         <TextView
+            android:textColor="@color/white"
             android:id="@+id/message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

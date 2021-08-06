@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/mainColor">
 
 
     <TextView
@@ -16,7 +17,7 @@
         android:gravity="right"
         android:padding="10dp"
         android:text="Delete for Everyone"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="MissingConstraints"
@@ -30,7 +31,7 @@
         android:gravity="right"
         android:padding="10dp"
         android:text="Cancel"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="16sp"
         tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="0dp"
@@ -44,7 +45,7 @@
         android:gravity="right"
         android:padding="10dp"
         android:text="Delete for Me"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="16sp"
         tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="0dp"
