@@ -8,40 +8,61 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.chattrap.Activities.StartUpActivity;
 import com.example.chattrap.R;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 public class SignUpActivity extends AppCompatActivity {
 
-    ImageView backButton;
     Button next, login;
     TextView titleText;
+    TextInputEditText fullName, username, email, password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_sign_up);
 
-        backButton = findViewById(R.id.signUp_back_button);
         next = findViewById(R.id.signUp_next_button);
         login = findViewById(R.id.signUp_login_button);
         titleText = findViewById(R.id.signUp_text);
+        fullName = findViewById(R.id.signup_fullname);
+        username = findViewById(R.id.signup_username);
+        email = findViewById(R.id.signup_email);
+        password = findViewById(R.id.signup_password);
     }
 
     public void callNextSignUpScreen(View view)
     {
+//        if(!validateFullName() | !validateUserName() | !validateEmail() | !validatePassword())
+//        {
+//            return;
+//        }
+
+        String fullNameS = fullName.getText().toString();
+        String userNameS = username.getText().toString();
+        String emailS = email.getText().toString();
+        String passwordS = password.getText().toString();
+
         Intent intent = new Intent(getApplicationContext(), SignUp2ndActivity.class);
 
-        Pair[] pairs = new Pair[4];
+        intent.putExtra("fullName", fullNameS);
+        intent.putExtra("userName", userNameS);
+        intent.putExtra("email", emailS);
+        intent.putExtra("password", passwordS);
 
-        pairs[0] = new Pair<View,String>(backButton, "transition_back_button");
-        pairs[1] = new Pair<View,String>(next, "transition_next_button");
-        pairs[2] = new Pair<View,String>(login, "transition_login_button");
-        pairs[3] = new Pair<View,String>(titleText, "transition_text");
+        Pair[] pairs = new Pair[3];
+
+        pairs[0] = new Pair<View,String>(next, "transition_next_button");
+        pairs[1] = new Pair<View,String>(login, "transition_login_button");
+        pairs[2] = new Pair<View,String>(titleText, "transition_text");
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
         {
@@ -58,12 +79,11 @@ public class SignUpActivity extends AppCompatActivity {
     public void callLoginScreen(View view)
     {
         Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-        Pair[] pairs = new Pair[4];
+        Pair[] pairs = new Pair[3];
 
-        pairs[0] = new Pair<View,String>(backButton, "transition_back_button");
-        pairs[1] = new Pair<View,String>(next, "transition_next_button");
-        pairs[2] = new Pair<View,String>(login, "transition_login_button");
-        pairs[3] = new Pair<View,String>(titleText, "transition_text");
+        pairs[0] = new Pair<View,String>(next, "transition_next_button");
+        pairs[1] = new Pair<View,String>(login, "transition_login_button");
+        pairs[2] = new Pair<View,String>(titleText, "transition_text");
 
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -75,6 +95,93 @@ public class SignUpActivity extends AppCompatActivity {
         else
         {
             startActivity(intent);
+        }
+    }
+
+    private boolean validateFullName()
+    {
+        String validation = fullName.getText().toString().trim();
+
+        if(validation.isEmpty())
+        {
+            fullName.setError("Field can not be empty");
+            return false;
+        }
+        else
+        {
+            fullName.setError(null);
+            return true;
+        }
+    }
+
+    private boolean validateUserName()
+    {
+        String validation = username.getText().toString().trim();
+        String checkspaces = "\\A\\w{1,20}\\z";
+
+        if(validation.isEmpty())
+        {
+            username.setError("Field can not be empty");
+            return false;
+        }
+        else if(validation.length() > 20)
+        {
+            username.setError("Username is too large!");
+            return false;
+        }
+        else if(validation.matches(checkspaces))
+        {
+            username.setError("No White space are allowed!");
+            return false;
+        }
+        else
+        {
+            username.setError(null);
+            return true;
+        }
+    }
+
+    private boolean validateEmail()
+    {
+        String validation = email.getText().toString().trim();
+        String checkEmail = "[a-zA-Z0-9] + @[a-z] + \\. + [a-z] +";
+
+        if(validation.isEmpty())
+        {
+            email.setError("Field can not be empty");
+            return false;
+        }
+        else if(validation.matches(checkEmail))
+        {
+            email.setError("Invalid Email!");
+            return false;
+        }
+        else
+        {
+            email.setError(null);
+            return true;
+        }
+    }
+
+    private boolean validatePassword()
+    {
+        String validation = password.getText().toString().trim();
+        String checkPassword = "^" + "(?=.*[0-9])" + "(?=.*[a-z])" + "(?=.*[A-Z])" + "(?=.*[a-zA-Z])" + "(?=.*[@#$%^&+=])" + "(?=.*\\S+$)" + ".{6,}" + "$";
+
+        if(validation.isEmpty())
+        {
+            password.setError("Password shoud contain 6 characters!");
+            return false;
+        }
+        else if(validation.matches(checkPassword))
+        {
+            password.setError("Invalid Password!");
+            return true;
+        }
+        else
+        {
+            password.setError(null);
+            return true;
         }
     }
 }

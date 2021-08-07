@@ -14,19 +14,15 @@
         <activity android:name=".Activities.LogInSignUp.SetNewPasswordActivity" />
         <activity android:name=".Activities.LogInSignUp.MakeSelectionActivity" />
         <activity android:name=".Activities.LogInSignUp.ForgetPasswordActivity" />
-        <activity android:name=".Activities.LogInSignUp.SignUp2ndActivity" />
-        <activity android:name=".Activities.LogInSignUp.SignUpActivity" />
-        <activity android:name=".Activities.LogInSignUp.VerifyOTPActivity" />
-        <activity android:name=".Activities.LogInSignUp.SignUp3rdActivity" />
-        <activity android:name=".Activities.LogInSignUp.LoginActivity" />
+        <activity android:name=".Activities.LogInSignUp.SignUp2ndActivity" android:parentActivityName=".Activities.LogInSignUp.SignUpActivity"/>
+        <activity android:name=".Activities.LogInSignUp.SignUpActivity" android:parentActivityName=".Activities.StartUpActivity"/>
+        <activity android:name=".Activities.LogInSignUp.VerifyOTPActivity" android:parentActivityName=".Activities.LogInSignUp.SignUp3rdActivity"/>
+        <activity android:name=".Activities.LogInSignUp.SignUp3rdActivity"  android:parentActivityName=".Activities.LogInSignUp.SignUp2ndActivity"/>
+        <activity android:name=".Activities.LogInSignUp.LoginActivity"  android:parentActivityName=".Activities.StartUpActivity"/>
         <activity android:name=".Activities.GroupChatActivity" />
         <activity
             android:name=".Activities.ChatActivity"
             android:theme="@style/Theme.CHATTRAP.NoActionBar" />
-        <activity android:name=".Activities.PhoneNumberActivity" />
-        <activity
-            android:name=".Activities.OTPActivity"
-            android:windowSoftInputMode="stateVisible" />
         <activity
             android:name=".Activities.StartUpActivity"
             android:windowSoftInputMode="stateVisible">

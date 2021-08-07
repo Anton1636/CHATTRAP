@@ -49,7 +49,7 @@ public class StartUpActivity extends AppCompatActivity {
         Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
         Pair[] pairs = new Pair[1];
 
-        pairs[0] = new Pair<View,String>(findViewById(R.id.logIn_button),"transition_login");
+        pairs[0] = new Pair<View,String>(findViewById(R.id.signUp_button),"transition_login");
 
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
