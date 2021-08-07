@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
                 {
                     User user = snapshot1.getValue(User.class);
 
-                    if(!user.getUid().equals(FirebaseAuth.getInstance().getUid()))
+                    if(!user.getPhoneNo().equals(FirebaseAuth.getInstance().getUid()))
                     {
                         users.add(user);
                     }
@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
                                 public void onSuccess(Uri uri)
                                 {
                                     UserStatus userStatus = new UserStatus();
-                                    userStatus.setName(user.getName());
+                                    userStatus.setName(user.getUsername());
                                     userStatus.setProfileImage(user.getProfileImage());
                                     userStatus.setLastUpdated(date.getTime());
 

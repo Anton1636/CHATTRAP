@@ -34,7 +34,7 @@
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:layout_marginTop="20dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="200dp"
             android:src="@drawable/logo_transparent" />
 
     </RelativeLayout>
@@ -50,6 +50,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Full name"
+                android:layout_marginTop="10dp"
                 android:textColorHint="@color/white"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 app:startIconTint="@color/white"
@@ -75,6 +76,7 @@
                 android:textColorHint="@color/white"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 app:startIconTint="@color/white"
+                android:layout_marginTop="70dp"
                 app:hintTextColor="@color/white"
                 app:endIconMode="clear_text"
                 app:endIconTint="@color/white"
@@ -93,6 +95,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Email"
+                android:layout_marginTop="130dp"
                 android:textColorHint="@color/white"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 app:startIconTint="@color/white"
@@ -118,6 +121,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 app:startIconTint="@color/white"
                 app:hintTextColor="@color/white"
+                android:layout_marginTop="200dp"
                 app:endIconMode="password_toggle"
                 app:passwordToggleEnabled="true"
                 app:endIconTint="@color/white"
@@ -137,7 +141,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="NEXT"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="30dp"
             android:onClick="callNextSignUpScreen"
             android:transitionName="transition_next_button"/>
 
@@ -146,7 +150,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Login"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:onClick="callLoginScreen"
             android:transitionName="transition_login_button"/>
     </LinearLayout>

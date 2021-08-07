@@ -51,7 +51,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UsersViewHol
 
         String senderId = FirebaseAuth.getInstance().getUid();
 
-        String senderRoom = senderId + user.getUid();
+        String senderRoom = senderId + user.getPhoneNo();
 
         FirebaseDatabase.getInstance().getReference()
                 .child("chats")
@@ -83,7 +83,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UsersViewHol
                 });
 
 
-        holder.binding.username.setText(user.getName());
+        holder.binding.username.setText(user.getUsername());
 
         Glide.with(context).load(user.getProfileImage())
                 .placeholder(R.drawable.avatar)
@@ -95,9 +95,9 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UsersViewHol
             public void onClick(View v)
             {
                 Intent intent = new Intent(context, ChatActivity.class);
-                intent.putExtra("name", user.getName());
+                intent.putExtra("name", user.getUsername());
                 intent.putExtra("image", user.getProfileImage());
-                intent.putExtra("uid", user.getUid());
+                intent.putExtra("uid", user.getPhoneNo());
                 context.startActivity(intent);
             }
         });

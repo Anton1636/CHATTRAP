@@ -125,7 +125,7 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter {
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if(snapshot.exists()) {
                                 User user = snapshot.getValue(User.class);
-                                viewHolder.binding.name.setText("@" + user.getName());
+                                viewHolder.binding.name.setText("@" + user.getUsername());
                             }
                         }
 
@@ -223,7 +223,7 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter {
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if(snapshot.exists()) {
                                 User user = snapshot.getValue(User.class);
-                                viewHolder.binding.name.setText("@" + user.getName());
+                                viewHolder.binding.name.setText("@" + user.getUsername());
                             }
                         }
 

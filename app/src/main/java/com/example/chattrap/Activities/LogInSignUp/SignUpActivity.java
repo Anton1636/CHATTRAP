@@ -22,7 +22,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     Button next, login;
     TextView titleText;
-    TextInputEditText fullName, username, email, password;
+    TextInputLayout fullName, username, email, password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +46,10 @@ public class SignUpActivity extends AppCompatActivity {
 //            return;
 //        }
 
-        String fullNameS = fullName.getText().toString();
-        String userNameS = username.getText().toString();
-        String emailS = email.getText().toString();
-        String passwordS = password.getText().toString();
+        String fullNameS = fullName.getEditText().getText().toString();
+        String userNameS = username.getEditText().getText().toString();
+        String emailS = email.getEditText().getText().toString();
+        String passwordS = password.getEditText().getText().toString();
 
         Intent intent = new Intent(getApplicationContext(), SignUp2ndActivity.class);
 
@@ -100,7 +100,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private boolean validateFullName()
     {
-        String validation = fullName.getText().toString().trim();
+        String validation = fullName.getEditText().getText().toString().trim();
 
         if(validation.isEmpty())
         {
@@ -116,7 +116,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private boolean validateUserName()
     {
-        String validation = username.getText().toString().trim();
+        String validation = username.getEditText().getText().toString().trim();
         String checkspaces = "\\A\\w{1,20}\\z";
 
         if(validation.isEmpty())
@@ -143,7 +143,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private boolean validateEmail()
     {
-        String validation = email.getText().toString().trim();
+        String validation = email.getEditText().getText().toString().trim();
         String checkEmail = "[a-zA-Z0-9] + @[a-z] + \\. + [a-z] +";
 
         if(validation.isEmpty())
@@ -165,7 +165,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private boolean validatePassword()
     {
-        String validation = password.getText().toString().trim();
+        String validation = password.getEditText().getText().toString().trim();
         String checkPassword = "^" + "(?=.*[0-9])" + "(?=.*[a-z])" + "(?=.*[A-Z])" + "(?=.*[a-zA-Z])" + "(?=.*[@#$%^&+=])" + "(?=.*\\S+$)" + ".{6,}" + "$";
 
         if(validation.isEmpty())

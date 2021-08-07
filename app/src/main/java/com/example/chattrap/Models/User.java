@@ -1,13 +1,13 @@
 package com.example.chattrap.Models;
 
 public class User {
-    private String fullName, username, email, password, date, gender, phoneNo;
+    private String fullName, username, email, password, date, gender, phoneNo, profileImage;
 
-    public User() {
+    public User(String fullName, String username, String email, String password, String date, String gender, String phoneNo) {
 
     }
 
-    public User(String fullName, String username, String email, String password, String date, String gender, String phoneNo) {
+    public User(String fullName, String username, String email, String password, String date, String gender, String phoneNo, String profileImage) {
         this.fullName = fullName;
         this.username = username;
         this.email = email;
@@ -15,6 +15,7 @@ public class User {
         this.date = date;
         this.gender = gender;
         this.phoneNo = phoneNo;
+        this.profileImage = profileImage;
     }
 
     public String getFullName() {
@@ -71,5 +72,13 @@ public class User {
 
     public void setPhoneNo(String phoneNo) {
         this.phoneNo = phoneNo;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 }

@@ -29,9 +29,9 @@ public class SignUp2ndActivity extends AppCompatActivity {
     Button next, login;
     TextView titleText;
     DatePicker datePicker;
-    List<String> genders = Arrays.asList("Not Important", "Male", "Female", "Agender", "Androgyne", "Androgynous", "Bigender", "Cis", "Cis Female", "Cis Male", "Cis Man", "Cis Woman", "Cisgender", "Cisgender Female", "Cisgender Male", "Cisgender Man", "Cisgender Woman", "Female to Male", "FTM", "Gender Fluid", "Gender Nonconforming", "Gender Questioning", "Gender Variant", "Genderqueer", "Intersex", "Male to Female", "MTF", "Neither", "Neutrois", "Non-binary", "Other", "Pangender", "Trans", "Trans Female", "Trans Male", "Trans Man", "Trans Person", "Trans Woman", "Trans*", "Trans* Female", "Trans* Male", "Trans* Man", "Trans* Person", "Trans* Woman", "Transfeminine", "Transgender", "Transgender Female", "Transgender Male", "Transgender Man", "Transgender Person", "Transgender Woman", "Transmasculine", "Transsexual", "Transsexual Female", "Transsexual Male", "Transsexual Man", "Transsexual Person", "Transsexual Woman", "Two spirit");
-    ArrayAdapter adapter = new ArrayAdapter(getApplicationContext(), R.layout.selected_item, genders);
-    Spinner spinner = findViewById(R.id.spinner);
+    List<String> genders ;
+    ArrayAdapter adapter ;
+    Spinner spinner ;
 
 
     @Override
@@ -40,13 +40,18 @@ public class SignUp2ndActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_sign_up2nd);
 
+        genders = Arrays.asList("Not Important", "Male", "Female", "Agender", "Androgyne", "Androgynous", "Bigender", "Cis", "Cis Female", "Cis Male", "Cis Man", "Cis Woman", "Cisgender", "Cisgender Female", "Cisgender Male", "Cisgender Man", "Cisgender Woman", "Female to Male", "FTM", "Gender Fluid", "Gender Nonconforming", "Gender Questioning", "Gender Variant", "Genderqueer", "Intersex", "Male to Female", "MTF", "Neither", "Neutrois", "Non-binary", "Other", "Pangender", "Trans", "Trans Female", "Trans Male", "Trans Man", "Trans Person", "Trans Woman", "Trans*", "Trans* Female", "Trans* Male", "Trans* Man", "Trans* Person", "Trans* Woman", "Transfeminine", "Transgender", "Transgender Female", "Transgender Male", "Transgender Man", "Transgender Person", "Transgender Woman", "Transmasculine", "Transsexual", "Transsexual Female", "Transsexual Male", "Transsexual Man", "Transsexual Person", "Transsexual Woman", "Two spirit");
+
+
+        adapter = new ArrayAdapter(getApplicationContext(), R.layout.selected_item, genders);
         adapter.setDropDownViewResource(R.layout.dropdown_item);
-        spinner.setAdapter(adapter);
+
 
         next = findViewById(R.id.signUp_next_button);
         login = findViewById(R.id.signUp_login_button);
         titleText = findViewById(R.id.signUp_text);
         datePicker = findViewById(R.id.age_picker);
+        spinner = findViewById(R.id.spinner);
 
     }
 
@@ -61,6 +66,9 @@ public class SignUp2ndActivity extends AppCompatActivity {
         int month = datePicker.getDayOfMonth();
         int year = datePicker.getYear();
         String _date = day + "/" + month + "/" + year;
+
+        spinner.setAdapter(adapter);
+
         String _gender = spinner.getSelectedItem().toString();
 
         Intent intent = new Intent(getApplicationContext(), SignUp3rdActivity.class);

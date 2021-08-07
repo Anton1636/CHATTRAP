@@ -42,7 +42,7 @@ public class VerifyOTPActivity extends AppCompatActivity
 
     PinView pinView;
     String codeBySystem;
-    String fullName, username, email, password, date, gender, phoneNo; 
+    String fullName, username, email, password, date, gender, phoneNo, whatToDo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +59,7 @@ public class VerifyOTPActivity extends AppCompatActivity
         date = getIntent().getStringExtra("date");
         gender = getIntent().getStringExtra("gender");
         phoneNo = getIntent().getStringExtra("phoneNo");
+        whatToDo = getIntent().getStringExtra("whatToDo");
 
         sendVerificationCodeToUser(phoneNo);
     }
@@ -117,6 +118,15 @@ public class VerifyOTPActivity extends AppCompatActivity
                      if (task.isSuccessful())
                      {
                         storeNewUsersData();
+
+                        if(whatToDo.equals("updateData"))
+                        {
+                            updateOldUserData();
+                        }
+                        else
+                        {
+                            storeNewUsersData();
+                        }
                      }
                      else
                      {
@@ -127,6 +137,15 @@ public class VerifyOTPActivity extends AppCompatActivity
                     }
                  }
              });
+    }
+
+    private void updateOldUserData()
+    {
+        Intent intent = new Intent(getApplicationContext(), SetNewPasswordActivity.class);
+        intent.putExtra("phoneNo", phoneNo);
+
+        startActivity(intent);
+        finish();
     }
 
     private void storeNewUsersData() 
