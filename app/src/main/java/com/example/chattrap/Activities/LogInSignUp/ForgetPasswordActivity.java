@@ -30,7 +30,7 @@ public class ForgetPasswordActivity extends AppCompatActivity {
 
     private ImageView screenIcon;
     private TextView title, description;
-    private TextInputLayout phoneNumberTextField;
+    public TextInputLayout phoneNumberTextField;
     private CountryCodePicker countryCodePicker;
     private Button nextButton;
     RelativeLayout progressBar;
@@ -108,9 +108,10 @@ public class ForgetPasswordActivity extends AppCompatActivity {
         });
     }
 
-    private boolean validateFields()
+    public boolean validateFields()
     {
-        if(phoneNumberTextField.isEmpty())
+        String _phoneNumber = phoneNumberTextField.getEditText().getText().toString().trim();
+        if(_phoneNumber.isEmpty())
         {
             phoneNumberTextField.setError("Phone number can't be empty");
             phoneNumberTextField.requestFocus();

@@ -44,7 +44,7 @@ public class SignUp2ndActivity extends AppCompatActivity {
 
 
         adapter = new ArrayAdapter(getApplicationContext(), R.layout.selected_item, genders);
-        adapter.setDropDownViewResource(R.layout.dropdown_item);
+        adapter.setDropDownViewResource(R.layout.dropdowm_item);
 
 
         next = findViewById(R.id.signUp_next_button);

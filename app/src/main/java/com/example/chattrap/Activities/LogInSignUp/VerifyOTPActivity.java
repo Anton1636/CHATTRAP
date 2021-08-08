@@ -64,11 +64,6 @@ public class VerifyOTPActivity extends AppCompatActivity
         sendVerificationCodeToUser(phoneNo);
     }
 
-    private void sendVerificationCodeToUser(String phoneNo)
-    {
-        PhoneAuthProvider.getInstance().verifyPhoneNumber(phoneNo,60, TimeUnit.SECONDS, (Activity) TaskExecutors.MAIN_THREAD, mCallbacks);
-    }
-
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks()
     {
         @Override
@@ -97,6 +92,18 @@ public class VerifyOTPActivity extends AppCompatActivity
             Toast.makeText(VerifyOTPActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     };
+
+    private void sendVerificationCodeToUser(String phoneNo)
+    {
+        PhoneAuthProvider.verifyPhoneNumber(
+                PhoneAuthOptions
+                        .newBuilder(FirebaseAuth.getInstance())
+                        .setActivity(this)
+                        .setPhoneNumber(phoneNo)
+                        .setTimeout(60L, TimeUnit.SECONDS)
+                        .setCallbacks(mCallbacks)
+                        .build());
+    }
 
     private void verifyCode(String code)
     {

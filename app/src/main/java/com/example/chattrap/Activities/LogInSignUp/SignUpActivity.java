@@ -41,10 +41,10 @@ public class SignUpActivity extends AppCompatActivity {
 
     public void callNextSignUpScreen(View view)
     {
-//        if(!validateFullName() | !validateUserName() | !validateEmail() | !validatePassword())
-//        {
-//            return;
-//        }
+        if(!validateFullName() | !validateUserName() | !validateEmail() | !validatePassword())
+        {
+            return;
+        }
 
         String fullNameS = fullName.getEditText().getText().toString();
         String userNameS = username.getEditText().getText().toString();

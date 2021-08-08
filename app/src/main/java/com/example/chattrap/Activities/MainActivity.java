@@ -12,9 +12,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.chattrap.Adapters.TopStatusAdapter;
+import com.example.chattrap.Helpers.SessionManager;
 import com.example.chattrap.Models.Status;
 import com.example.chattrap.Models.UserStatus;
 import com.example.chattrap.R;
@@ -57,6 +59,13 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        TextView textView = findViewById(R.id.username);
+        SessionManager sessionManager = new SessionManager(MainActivity.this, SessionManager.SESSION_USERSESSION);
+        HashMap<String, String> userDetails = sessionManager.getUserDetailFromSession();
+        String username = userDetails.get(SessionManager.KEY_USERNAME);
+
+        textView.setText(username);
 
         dialog = new ProgressDialog(this);
         dialog.setMessage("Uploading Image...");
