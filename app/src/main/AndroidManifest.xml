@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.chattrap">
+    package="com.example.catsapp">
 
     <application
         android:allowBackup="true"
@@ -9,21 +8,20 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.CHATTRAP"
-        android:usesCleartextTraffic="true">
-        <activity android:name=".Activities.LogInSignUp.ForgetPasswordSuccessMessageActivity"></activity>
+        android:theme="@style/Theme.CaTsApp">
+        <activity android:name=".Activities.PhoneNumberActivity" />
+        <activity android:name=".Activities.OTPActivity" />
+        <activity android:name=".Activities.GroupChatActivity" />
+        <activity android:name=".Activities.ChatActivity" />
+        <activity android:name=".Activities.LogInSignUp.VerifyOTPActivity" />
+        <activity android:name=".Activities.LogInSignUp.SignUpActivity" />
+        <activity android:name=".Activities.LogInSignUp.SignUp3rdActivity" />
+        <activity android:name=".Activities.LogInSignUp.SignUp2ndActivity" />
         <activity android:name=".Activities.LogInSignUp.SetNewPasswordActivity" />
         <activity android:name=".Activities.LogInSignUp.MakeSelectionActivity" />
+        <activity android:name=".Activities.LogInSignUp.LoginActivity" />
+        <activity android:name=".Activities.LogInSignUp.ForgetPasswordSuccessMessageActivity" />
         <activity android:name=".Activities.LogInSignUp.ForgetPasswordActivity" />
-        <activity android:name=".Activities.LogInSignUp.SignUp2ndActivity" android:parentActivityName=".Activities.LogInSignUp.SignUpActivity"/>
-        <activity android:name=".Activities.LogInSignUp.SignUpActivity" android:parentActivityName=".Activities.StartUpActivity"/>
-        <activity android:name=".Activities.LogInSignUp.VerifyOTPActivity" android:parentActivityName=".Activities.LogInSignUp.SignUp3rdActivity"/>
-        <activity android:name=".Activities.LogInSignUp.SignUp3rdActivity"  android:parentActivityName=".Activities.LogInSignUp.SignUp2ndActivity"/>
-        <activity android:name=".Activities.LogInSignUp.LoginActivity"  android:parentActivityName=".Activities.StartUpActivity"/>
-        <activity android:name=".Activities.GroupChatActivity" />
-        <activity
-            android:name=".Activities.ChatActivity"
-            android:theme="@style/Theme.CHATTRAP.NoActionBar" />
         <activity
             android:name=".Activities.StartUpActivity"
             android:windowSoftInputMode="stateVisible">
@@ -33,6 +31,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".Activities.MainActivity" />
         <!--
  Set custom default icon. This is used when no icon is set for incoming notification messages.
@@ -50,5 +49,5 @@
             android:resource="@color/mainColor" />
 
     </application>
-    <uses-permission android:name="android.permission.INTERNET" />
+
 </manifest>
