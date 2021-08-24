@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         HashMap<String, String> userDetails = sessionManager.getUserDetailFromSession();
         String username = userDetails.get(SessionManager.KEY_USERNAME);
 
-        textView.setText(username);
+        //textView.setText(username);
 
         dialog = new ProgressDialog(this);
         dialog.setMessage("Uploading Image...");

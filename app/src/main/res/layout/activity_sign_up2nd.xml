@@ -32,7 +32,7 @@
                 android:layout_width="150dp"
                 android:layout_height="150dp"
                 android:layout_marginLeft="250dp"
-                android:src="@drawable/logo_transparent" />
+                android:src="@drawable/logo" />
         </RelativeLayout>
 
         <RelativeLayout

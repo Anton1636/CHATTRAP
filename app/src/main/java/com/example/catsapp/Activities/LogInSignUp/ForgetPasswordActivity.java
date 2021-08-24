@@ -56,7 +56,6 @@ public class ForgetPasswordActivity extends AppCompatActivity {
 
     public void verifyPhoneNumber(View view)
     {
-
         CheckInternet checkInternet = new CheckInternet();
 
         if(!checkInternet.isConnected(this))
@@ -77,7 +76,7 @@ public class ForgetPasswordActivity extends AppCompatActivity {
             _phoneNumber = _phoneNumber.substring(1);
         }
 
-        final String _completePhoneNumber = "+" + countryCodePicker.getFullNumber() + _phoneNumber;
+        final String _completePhoneNumber = countryCodePicker.getSelectedCountryCodeWithPlus() + _phoneNumber;
         Query checkUser = FirebaseDatabase.getInstance().getReference("Users").orderByChild("phoneNo").equalTo(_completePhoneNumber);
 
         checkUser.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -87,7 +86,7 @@ public class ForgetPasswordActivity extends AppCompatActivity {
                     phoneNumberTextField.setError(null);
                     phoneNumberTextField.setErrorEnabled(false);
 
-                    Intent intent = new Intent(getApplicationContext(), VerifyOTPActivity.class);
+                    Intent intent = new Intent(ForgetPasswordActivity.this, MakeSelectionActivity.class);
                     intent.putExtra("phoneNo", _completePhoneNumber);
                     intent.putExtra("whatToDo", "updateData");
                     startActivity(intent);
@@ -103,7 +102,18 @@ public class ForgetPasswordActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(ForgetPasswordActivity.this);
 
+                builder.setMessage("This phone does not belong to any user  ")
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                startActivity(new Intent(getApplicationContext(), StartUpActivity.class));
+                                finish();
+                            }
+                        });
             }
         });
     }
@@ -129,18 +139,20 @@ public class ForgetPasswordActivity extends AppCompatActivity {
 
         builder.setMessage("Please connect to the internet to proceed further")
                 .setCancelable(false)
-                .setPositiveButton("Connect", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Connect", new DialogInterface.OnClickListener()
+                {
                     @Override
                     public void onClick(DialogInterface dialog, int which)
                     {
-                        startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                        startActivity(new Intent(ForgetPasswordActivity.this, MakeSelectionActivity.class));
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+                {
                     @Override
                     public void onClick(DialogInterface dialog, int which)
                     {
-                        startActivity(new Intent(getApplicationContext(), StartUpActivity.class));
+                        startActivity(new Intent(ForgetPasswordActivity.this, StartUpActivity.class));
                         finish();
                     }
                 });

@@ -14,6 +14,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.catsapp.Adapters.MessagesAdapter;
@@ -324,7 +325,7 @@ public class ChatActivity extends AppCompatActivity {
                                             }
                                         });
 
-                                        //Toast.makeText(ChatActivity.this, filePath, Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ChatActivity.this, filePath, Toast.LENGTH_SHORT).show();
                                     }
                                 });
                             }

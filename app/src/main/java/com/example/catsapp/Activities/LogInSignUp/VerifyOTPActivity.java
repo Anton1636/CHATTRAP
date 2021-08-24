@@ -13,6 +13,8 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.chaos.view.PinView;
+import com.example.catsapp.Activities.ChatActivity;
+import com.example.catsapp.Activities.GroupChatActivity;
 import com.example.catsapp.Activities.MainActivity;
 import com.example.catsapp.Activities.StartUpActivity;
 import com.example.catsapp.Models.User;
@@ -23,15 +25,18 @@ import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.concurrent.TimeUnit;
 
-public class VerifyOTPActivity extends AppCompatActivity {
+public class
+VerifyOTPActivity extends AppCompatActivity {
 
     PinView pinView;
     String codeBySystem;
@@ -57,37 +62,31 @@ public class VerifyOTPActivity extends AppCompatActivity {
         sendVerificationCodeToUser(phoneNo);
     }
 
-    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks()
-    {
+    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
         @Override
-        public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken)
-        {
+        public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
             super.onCodeSent(s, forceResendingToken);
 
             codeBySystem = s;
         }
 
         @Override
-        public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential)
-        {
+        public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
             String code = phoneAuthCredential.getSmsCode();
 
-            if(code != null)
-            {
+            if (code != null) {
                 pinView.setText(code);
                 verifyCode(code);
             }
         }
 
         @Override
-        public void onVerificationFailed(@NonNull FirebaseException e)
-        {
+        public void onVerificationFailed(@NonNull FirebaseException e) {
             Toast.makeText(VerifyOTPActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     };
 
-    private void sendVerificationCodeToUser(String phoneNo)
-    {
+    private void sendVerificationCodeToUser(String phoneNo) {
         PhoneAuthProvider.verifyPhoneNumber(
                 PhoneAuthOptions
                         .newBuilder(FirebaseAuth.getInstance())
@@ -98,40 +97,29 @@ public class VerifyOTPActivity extends AppCompatActivity {
                         .build());
     }
 
-    private void verifyCode(String code)
-    {
-        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(codeBySystem,code);
+    private void verifyCode(String code) {
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(codeBySystem, code);
 
         signInWithPhoneAuthCredential(credential);
     }
 
-    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential)
-    {
+    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
 
         firebaseAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>()
-                {
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
-                    public void onComplete(@NonNull Task<AuthResult> task)
-                    {
-                        if (task.isSuccessful())
-                        {
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
                             storeNewUsersData();
 
-                            if(whatToDo.equals("updateData"))
-                            {
+                            if (whatToDo.equals("updateData")) {
                                 updateOldUserData();
-                            }
-                            else
-                            {
+                            } else {
                                 storeNewUsersData();
                             }
-                        }
-                        else
-                        {
-                            if (task.getException() instanceof FirebaseAuthInvalidCredentialsException)
-                            {
+                        } else {
+                            if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                                 Toast.makeText(VerifyOTPActivity.this, "Verification Not Complete! Try again", Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -139,8 +127,7 @@ public class VerifyOTPActivity extends AppCompatActivity {
                 });
     }
 
-    private void updateOldUserData()
-    {
+    private void updateOldUserData() {
         Intent intent = new Intent(getApplicationContext(), SetNewPasswordActivity.class);
         intent.putExtra("phoneNo", phoneNo);
 
@@ -148,38 +135,34 @@ public class VerifyOTPActivity extends AppCompatActivity {
         finish();
     }
 
-    private void storeNewUsersData()
-    {
+    private void storeNewUsersData() {
         FirebaseDatabase rootNode = FirebaseDatabase.getInstance();
         DatabaseReference reference = rootNode.getReference("Users");
 
-        User addNewUser = new User(fullName,username,email,password,date,gender,phoneNo);
+        User addNewUser = new User(fullName, username, email, password, date, gender, phoneNo);
 
         reference.child(phoneNo).setValue(addNewUser);
     }
 
-    public void callNextSceenFromOTP(View view)
+    public void callNextSceenFromOTP(View view) 
     {
         String code = pinView.getText().toString();
 
-        if(!code.isEmpty())
+        if (!code.isEmpty())
         {
             verifyCode(code);
 
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             Pair[] pairs = new Pair[1];
 
-            pairs[0] = new Pair<View,String>(findViewById(R.id.verify_otp),"transition_verify_otp");
+            pairs[0] = new Pair<View, String>(findViewById(R.id.verify_otp), "transition_verify_otp");
 
-
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             {
                 ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(VerifyOTPActivity.this, pairs);
 
                 startActivity(intent, options.toBundle());
-            }
-            else
-            {
+            } else {
                 startActivity(intent);
             }
         }

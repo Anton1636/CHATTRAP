@@ -1,8 +1,11 @@
 package com.example.catsapp.Activities.LogInSignUp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ActivityOptions;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,8 +16,17 @@ import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.example.catsapp.Activities.StartUpActivity;
 import com.example.catsapp.R;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.hbb20.CountryCodePicker;
 
 public class SignUp3rdActivity extends AppCompatActivity {
@@ -39,11 +51,60 @@ public class SignUp3rdActivity extends AppCompatActivity {
         scrollView = findViewById(R.id.signup_3rd_screen_scroll_view);
     }
 
+    private boolean validatePhuneNumber()
+    {
+        String _phoneNumber = phoneNumber.getEditText().getText().toString().trim();
+
+        if (_phoneNumber.charAt(0) == '0') {
+            _phoneNumber = _phoneNumber.substring(1);
+        }
+
+        final String _completePhoneNumber = countryCodePicker.getSelectedCountryCodeWithPlus() + _phoneNumber;
+        Query checkUser = FirebaseDatabase.getInstance().getReference("Users").orderByChild("phoneNo").equalTo(_completePhoneNumber);
+
+        checkUser.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    phoneNumber.setError(null);
+                    phoneNumber.setErrorEnabled(false);
+
+                    Intent intent = new Intent(SignUp3rdActivity.this, MakeSelectionActivity.class);
+                    intent.putExtra("phoneNo", _completePhoneNumber);
+                    intent.putExtra("whatToDo", "updateData");
+                    startActivity(intent);
+                    finish();
+
+                } else {
+                    phoneNumber.setError("No such user exist!");
+                    phoneNumber.requestFocus();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(SignUp3rdActivity.this);
+
+                builder.setMessage("This phone does not belong to any user  ")
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                startActivity(new Intent(getApplicationContext(), StartUpActivity.class));
+                                finish();
+                            }
+                        });
+            }
+        });
+        return true;
+    }
+
     public void callVerifyOTPScreen(View view)
     {
         if(!validatePhuneNumber())
         {
-            return;
+            return ;
         }
 
         String _fullName = getIntent().getStringExtra("fullName");
@@ -80,11 +141,6 @@ public class SignUp3rdActivity extends AppCompatActivity {
         {
             startActivity(intent);
         }
-    }
-
-    private boolean validatePhuneNumber()
-    {
-        return true;
     }
 
     public void callLoginScreen(View view)
