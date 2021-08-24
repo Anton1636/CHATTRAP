@@ -3,20 +3,34 @@ package com.example.catsapp.Activities;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.devlomi.record_view.OnBasketAnimationEnd;
+import com.devlomi.record_view.OnRecordListener;
 import com.example.catsapp.Adapters.MessagesAdapter;
 import com.example.catsapp.Models.Message;
 import com.example.catsapp.R;
@@ -33,13 +47,19 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import static android.content.ContentValues.TAG;
 
 public class ChatActivity extends AppCompatActivity {
 
+    private static final int REQUEST_CORD_PERMISSION = 332;
     ActivityChatBinding binding;
 
     MessagesAdapter adapter;
@@ -53,6 +73,11 @@ public class ChatActivity extends AppCompatActivity {
     ProgressDialog dialog;
     String senderUid;
     String receiverUid;
+
+    private MediaRecorder mediaRecorder;
+    private String audio_path;
+    private String sTime;
+    MessagesAdapter messagesAdapter = new MessagesAdapter();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -225,7 +250,16 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count)
             {
-
+                if(TextUtils.isEmpty(binding.messageBox.getText().toString()))
+                {
+                    binding.sendBtn.setVisibility(View.INVISIBLE);
+                    binding.recordButton.setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    binding.sendBtn.setVisibility(View.VISIBLE);
+                    binding.recordButton.setVisibility(View.INVISIBLE);
+                }
             }
 
             @Override
@@ -250,6 +284,163 @@ public class ChatActivity extends AppCompatActivity {
 
 //        getSupportActionBar().setTitle(name);
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        binding.recordButton.setRecordView(binding.recordView);
+        binding.recordView.setOnRecordListener(new OnRecordListener()
+        {
+            @Override
+            public void onStart()
+            {
+                if(!checkPermisionFromDevice())
+                {
+                    binding.messageBox.setVisibility(View.INVISIBLE);
+                    binding.attachment.setVisibility(View.INVISIBLE);
+                    binding.camera.setVisibility(View.INVISIBLE);
+
+                    startRecord();
+                    Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+                    if (vibrator != null)
+                    {
+                        vibrator.vibrate(100);
+                    }
+                }
+                else
+                {
+                    requestPermission();
+                }
+            }
+
+            @Override
+            public void onCancel()
+            {
+                try
+                {
+                    mediaRecorder.reset();
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFinish(long recordTime)
+            {
+                binding.messageBox.setVisibility(View.VISIBLE);
+                binding.attachment.setVisibility(View.VISIBLE);
+                binding.camera.setVisibility(View.VISIBLE);
+
+                try {
+                    sTime = getHumanTimeText(recordTime);
+
+                    stopRecord();
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onLessThanSecond()
+            {
+                binding.messageBox.setVisibility(View.VISIBLE);
+                binding.attachment.setVisibility(View.VISIBLE);
+                binding.camera.setVisibility(View.VISIBLE);
+            }
+        });
+        binding.recordView.setOnBasketAnimationEndListener(new OnBasketAnimationEnd() {
+            @Override
+            public void onAnimationEnd() {
+                binding.messageBox.setVisibility(View.VISIBLE);
+                binding.attachment.setVisibility(View.VISIBLE);
+                binding.camera.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    private void startRecord()
+    {
+        setUpMediaRecorder();
+
+        try
+        {
+            mediaRecorder.prepare();
+            mediaRecorder.start();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+
+            Toast.makeText(ChatActivity.this, "Recording Error, Please restart app", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void stopRecord()
+    {
+        try
+        {
+            if(mediaRecorder != null)
+            {
+                mediaRecorder.stop();
+                mediaRecorder.reset();
+                mediaRecorder.release();
+                mediaRecorder = null;
+                messagesAdapter.sendVoice(audio_path);
+            }
+            else
+            {
+                Toast.makeText(getApplicationContext(), "Null", Toast.LENGTH_LONG).show();
+            }
+        }
+        catch (Exception e)
+        {
+            Toast.makeText(getApplicationContext(), "Stop Recording Error:" + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void setUpMediaRecorder()
+    {
+        String path_save = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + UUID.randomUUID().toString() + "audio_record.m4a";
+
+        audio_path = path_save;
+
+        mediaRecorder = new MediaRecorder();
+        try
+        {
+            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+            mediaRecorder.setOutputFile(path_save);
+        }
+        catch (Exception e)
+        {
+            Log.d(TAG, "setUpMediaRecord:" + e.getMessage());
+        }
+    }
+
+    @SuppressLint({"DefaultLocate", "DefaultLocale"})
+    private String getHumanTimeText(long milliseconds)
+    {
+        return String.format("%02d", TimeUnit.MILLISECONDS.toSeconds() - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds)));
+    }
+
+    private void requestPermission()
+    {
+        ActivityCompat.requestPermissions(this, new String[]
+                {
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.RECORD_AUDIO
+                }, REQUEST_CORD_PERMISSION);
+    }
+
+    private boolean checkPermisionFromDevice()
+    {
+        int write_external_storage_result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int record_audio_result = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
+
+        return write_external_storage_result == PackageManager.PERMISSION_DENIED || record_audio_result == PackageManager.PERMISSION_DENIED;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.example.catsapp.Adapters;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,9 +21,15 @@ import com.example.catsapp.databinding.ItemSendBinding;
 import com.github.pgreze.reactions.ReactionPopup;
 import com.github.pgreze.reactions.ReactionsConfig;
 import com.github.pgreze.reactions.ReactionsConfigBuilder;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class MessagesAdapter extends RecyclerView.Adapter {
@@ -45,6 +52,10 @@ public class MessagesAdapter extends RecyclerView.Adapter {
     }
 
     public MessagesAdapter(ChatActivity context, ArrayList<Message> messages, String senderRoom, String receiverRoom) {
+    }
+
+    public MessagesAdapter() {
+
     }
 
     @NonNull
@@ -338,4 +349,21 @@ public class MessagesAdapter extends RecyclerView.Adapter {
         }
     }
 
+    public void sendVoice(String authPath)
+    {
+        final Uri uriAudio = Uri.fromFile(new File(authPath));
+        final StorageReference audioRef = FirebaseStorage.getInstance().getReference().child("CaTsApp/Voice/" + System.currentTimeMillis());
+
+        audioRef.putFile(uriAudio).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot audioSnapshot) {
+                Task<Uri> uriTask = audioSnapshot.getStorage().getDownloadUrl();
+
+                while (!uriTask.isSuccessful());
+
+                Uri downloadUrl = uriTask.getResult();
+                String voiceUrl = String.valueOf(downloadUrl);
+            }
+        });
+    }
 }
