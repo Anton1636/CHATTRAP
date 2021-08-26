@@ -387,6 +387,7 @@ public class ChatActivity extends AppCompatActivity {
                 mediaRecorder.reset();
                 mediaRecorder.release();
                 mediaRecorder = null;
+
                 messagesAdapter.sendVoice(audio_path);
             }
             else
@@ -423,7 +424,7 @@ public class ChatActivity extends AppCompatActivity {
     @SuppressLint({"DefaultLocate", "DefaultLocale"})
     private String getHumanTimeText(long milliseconds)
     {
-        return String.format("%02d", TimeUnit.MILLISECONDS.toSeconds() - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds)));
+        return String.format("%02d", TimeUnit.MILLISECONDS.toSeconds(milliseconds) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds)));
     }
 
     private void requestPermission()

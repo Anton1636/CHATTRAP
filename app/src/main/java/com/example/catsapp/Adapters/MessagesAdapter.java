@@ -1,8 +1,10 @@
 package com.example.catsapp.Adapters;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -21,16 +23,22 @@ import com.example.catsapp.databinding.ItemSendBinding;
 import com.github.pgreze.reactions.ReactionPopup;
 import com.github.pgreze.reactions.ReactionsConfig;
 import com.github.pgreze.reactions.ReactionsConfigBuilder;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MessagesAdapter extends RecyclerView.Adapter {
 
@@ -43,6 +51,10 @@ public class MessagesAdapter extends RecyclerView.Adapter {
     String senderRoom;
     String receiverRoom;
 
+    private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+    private FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+    private String receiverID;
+
     public MessagesAdapter(Context context, ArrayList<Message> messages, String senderRoom, String receiverRoom)
     {
         this.context = context;
@@ -52,6 +64,12 @@ public class MessagesAdapter extends RecyclerView.Adapter {
     }
 
     public MessagesAdapter(ChatActivity context, ArrayList<Message> messages, String senderRoom, String receiverRoom) {
+    }
+
+    public MessagesAdapter(Context context, String receiverID)
+    {
+        this.context = context;
+        this.receiverID = receiverID;
     }
 
     public MessagesAdapter() {
@@ -349,6 +367,19 @@ public class MessagesAdapter extends RecyclerView.Adapter {
         }
     }
 
+    private String getCurrentDate()
+    {
+        Date date = Calendar.getInstance().getTime();
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        String today = formatter.format(date);
+
+        Calendar currentDateTime = Calendar.getInstance();
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("hh:mm a");
+        String currentTime = df.format(currentDateTime.getTime());
+
+        return today+", "+currentTime;
+    }
+
     public void sendVoice(String authPath)
     {
         final Uri uriAudio = Uri.fromFile(new File(authPath));
@@ -363,6 +394,26 @@ public class MessagesAdapter extends RecyclerView.Adapter {
 
                 Uri downloadUrl = uriTask.getResult();
                 String voiceUrl = String.valueOf(downloadUrl);
+
+                Message message = new Message(getCurrentDate(), "", voiceUrl, "VOICE", firebaseUser.getUid(), receiverID);
+
+                reference.child("ChatActivity").push().setValue(message).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("Send", "onSuccess:");
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("Send", "onFailure:" + e.getMessage());
+                    }
+                });
+
+                DatabaseReference messageRef1 = FirebaseDatabase.getInstance().getReference("ChatList").child(firebaseUser.getUid()).child(receiverID);
+                messageRef1.child("messageId").setValue(receiverID);
+
+                DatabaseReference messageRef2 = FirebaseDatabase.getInstance().getReference("ChatList").child(receiverID).child(firebaseUser.getUid());
+                messageRef2.child("messageId").setValue(firebaseUser.getUid());
             }
         });
     }

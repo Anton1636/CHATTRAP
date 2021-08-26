@@ -312,6 +312,8 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
+        messages = new ArrayList<Message>();
+
         return messages.size();
     }
 

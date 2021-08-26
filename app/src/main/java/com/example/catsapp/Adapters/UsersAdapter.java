@@ -28,7 +28,7 @@ import java.util.Date;
 public class UsersAdapter extends RecyclerView.Adapter<com.example.catsapp.Adapters.UsersAdapter.UsersViewHolder> {
 
     Context context;
-    ArrayList<User> users;
+    ArrayList<User> users ;
 
     public UsersAdapter(Context context, ArrayList<User> users)
     {
@@ -109,8 +109,11 @@ public class UsersAdapter extends RecyclerView.Adapter<com.example.catsapp.Adapt
 
     @Override
     public int getItemCount() {
+        users = new ArrayList<User>();
+
         return users.size();
     }
+
 
     public class UsersViewHolder extends RecyclerView.ViewHolder
     {

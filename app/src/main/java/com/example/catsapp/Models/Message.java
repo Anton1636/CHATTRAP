@@ -14,6 +14,9 @@ public class Message {
         this.timestamp = timestamp;
     }
 
+    public Message(String currentDate, String s, String voiceUrl, String voice, String uid, String receiverID) {
+    }
+
     public String getMessageId() {
         return messageId;
     }
