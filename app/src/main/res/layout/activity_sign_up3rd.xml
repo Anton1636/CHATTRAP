@@ -74,6 +74,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@color/mainColor"
+                    android:textColor="@color/white"
                     android:inputType="phone"/>
             </com.google.android.material.textfield.TextInputLayout>
 

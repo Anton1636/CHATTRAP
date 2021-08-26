@@ -28,6 +28,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.example.catsapp.databinding.ActivityMainBinding;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -49,12 +50,12 @@ public class MainActivity extends AppCompatActivity {
     TopStatusAdapter statusAdapter;
     ArrayList<UserStatus> userStatuses;
     ProgressDialog dialog;
-
     User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+
         super.onCreate(savedInstanceState);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -72,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
         dialog.setCancelable(false);
 
         database = FirebaseDatabase.getInstance();
-        users = new ArrayList<>();
         userStatuses = new ArrayList<>();
 
         database.getReference().child("users").child(FirebaseAuth.getInstance().getUid())
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot)
             {
-                users.clear();
+               // users.clear();
                 for(DataSnapshot snapshot1 : snapshot.getChildren())
                 {
                     User user = snapshot1.getValue(User.class);

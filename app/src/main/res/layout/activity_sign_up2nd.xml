@@ -80,6 +80,7 @@
                 android:calendarViewShown="false"
                 android:spinnersShown="true"
                 android:layout_marginTop="120dp"
+
                 android:calendarTextColor="@color/white"/>
         </RelativeLayout>
 

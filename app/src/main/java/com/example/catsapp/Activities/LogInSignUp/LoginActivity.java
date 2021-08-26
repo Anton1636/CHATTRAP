@@ -42,8 +42,7 @@ public class LoginActivity extends AppCompatActivity {
     TextInputEditText phoneNumberEditText, passwordEditText;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -60,27 +59,23 @@ public class LoginActivity extends AppCompatActivity {
         //Check weather phone and pass is saved in Shared Preferences
         SessionManager sessionManager = new SessionManager(LoginActivity.this, SessionManager.SESSION_REMEMBERME);
 
-        if(sessionManager.checkRememberMe())
-        {
+        if (sessionManager.checkRememberMe()) {
             HashMap<String, String> rememberMeDetails = sessionManager.getRememberMeDetailFromSession();
             passwordEditText.setText(rememberMeDetails.get(SessionManager.KEY_SESSIONPHONENUMBER));
             passwordEditText.setText(rememberMeDetails.get(SessionManager.KEY_SESSIONPASSWORD));
         }
     }
 
-    public void letTheUserLoggedIn(View view)
-    {
+    public void letTheUserLoggedIn(View view) {
         CheckInternet checkInternet = new CheckInternet();
 
-        if(!checkInternet.isConnected(this))
-        {
+        if (!checkInternet.isConnected(this)) {
             showCustomDialog();
             return;
         }
 
 
-        if(!validateFields())
-        {
+        if (!validateFields()) {
             return;
         }
 
@@ -91,14 +86,13 @@ public class LoginActivity extends AppCompatActivity {
         String _phoneNumber = phoneNumber.getEditText().getText().toString().trim();
         String _password = password.getEditText().getText().toString().trim();
 
-        if(_phoneNumber.charAt(0) == '0')
-        {
+        if (_phoneNumber.charAt(0) == '0') {
             _phoneNumber = _phoneNumber.substring(1);
         }
 
-        final String _completePhoneNumber = "+" + countryCodePicker.getFullNumber() + _phoneNumber;
+        final String _completePhoneNumber = "+" + countryCodePicker.getSelectedCountryCodeWithPlus() + _phoneNumber;
 
-        if(rememberMe.isChecked())
+        if (rememberMe.isChecked())
         {
             SessionManager sessionManager = new SessionManager(LoginActivity.this, SessionManager.SESSION_REMEMBERME);
 
@@ -109,20 +103,16 @@ public class LoginActivity extends AppCompatActivity {
         //Check weather User exists or not in db
         Query checkUser = FirebaseDatabase.getInstance().getReference("Users").orderByChild("phoneNo").equalTo(_completePhoneNumber);
 
-        checkUser.addListenerForSingleValueEvent(new ValueEventListener()
-        {
+        checkUser.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot)
-            {
-                if(snapshot.exists())
-                {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
                     phoneNumber.setError(null);
                     phoneNumber.setErrorEnabled(false);
 
                     String systemPassword = snapshot.child(_completePhoneNumber).child("password").getValue(String.class);
 
-                    if(systemPassword.equals(_password))
-                    {
+                    if (systemPassword.equals(_password)) {
                         password.setError(null);
                         password.setErrorEnabled(false);
 
@@ -146,46 +136,38 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.makeText(LoginActivity.this, _fullname + "\n" + _email + "\n" + _phoneNo + "\n" + _dateOfBirth, Toast.LENGTH_SHORT).show();
                         progressbar.setVisibility(View.GONE);
 
-                    }
-                    else
-                    {
+                    } else {
                         progressbar.setVisibility(View.GONE);
                         Toast.makeText(LoginActivity.this, "Password doesn't match!", Toast.LENGTH_SHORT).show();
                     }
-                }
-                else
-                {
+                } else {
                     progressbar.setVisibility(View.GONE);
                     Toast.makeText(LoginActivity.this, "No such user exist!", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error)
-            {
+            public void onCancelled(@NonNull DatabaseError error) {
                 progressbar.setVisibility(View.GONE);
                 Toast.makeText(LoginActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void showCustomDialog()
-    {
+    private void showCustomDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
 
         builder.setMessage("Please connect to the internet to proceed further")
                 .setCancelable(false)
                 .setPositiveButton("Connect", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
+                    public void onClick(DialogInterface dialog, int which) {
                         startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
+                    public void onClick(DialogInterface dialog, int which) {
                         startActivity(new Intent(getApplicationContext(), StartUpActivity.class));
                         finish();
                     }
@@ -197,23 +179,58 @@ public class LoginActivity extends AppCompatActivity {
         String _phoneNumber = phoneNumber.getEditText().getText().toString().trim();
         String _password = password.getEditText().getText().toString().trim();
 
-        if(_phoneNumber.isEmpty())
-        {
-            phoneNumber.setError("Phone number can't be empty");
-            phoneNumber.requestFocus();
-            return false;
-        }
-        else if(_password.isEmpty())
-        {
+        if (!_phoneNumber.isEmpty()) {
+            _phoneNumber = phoneNumber.getEditText().getText().toString().trim();
+
+            if (_phoneNumber.charAt(0) == '0') {
+                _phoneNumber = _phoneNumber.substring(1);
+            }
+
+            final String _completePhoneNumber = countryCodePicker.getSelectedCountryCodeWithPlus() + _phoneNumber;
+            Query checkUser = FirebaseDatabase.getInstance().getReference("Users").orderByChild("phoneNo").equalTo(_completePhoneNumber);
+
+            checkUser.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        phoneNumber.setError(null);
+                        phoneNumber.setErrorEnabled(false);
+
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        intent.putExtra("phoneNo", _completePhoneNumber);
+                        intent.putExtra("whatToDo", "updateData");
+                        startActivity(intent);
+                        finish();
+
+                    } else {
+                        phoneNumber.setError("No such user exist!");
+                        phoneNumber.requestFocus();
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+
+                    builder.setMessage("This phone does not belong to any user  ")
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    startActivity(new Intent(getApplicationContext(), StartUpActivity.class));
+                                    finish();
+                                }
+                            });
+                }
+            });
+            return true;
+        } else if (_password.isEmpty()) {
             password.setError("Password number can't be empty");
             password.requestFocus();
             return false;
         }
-        else
-        {
-            return true;
-        }
+        return true;
     }
+
 
     public void callSignUpScreen(View view)
     {
