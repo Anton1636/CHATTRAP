@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.catsapp.Activities.ChatActivity;
 import com.example.catsapp.Activities.GroupChatActivity;
 import com.example.catsapp.Models.Message;
 import com.example.catsapp.Models.User;
@@ -28,6 +29,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class GroupMessagesAdapter extends RecyclerView.Adapter {
 
@@ -43,6 +45,12 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter {
     }
 
     public GroupMessagesAdapter(GroupChatActivity context, ArrayList<Message> messages) {
+    }
+
+    public GroupMessagesAdapter(List<Message> list, GroupChatActivity groupChatActivity) {
+    }
+
+    public GroupMessagesAdapter(List<Message> list, ChatActivity chatActivity) {
     }
 
     @NonNull

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "205098305629",
+    "firebase_url": "https://catsapp-728c4-default-rtdb.firebaseio.com",
+    "project_id": "catsapp-728c4",
+    "storage_bucket": "catsapp-728c4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:205098305629:android:9dc3d221c9849a5f2e25b4",
+        "android_client_info": {
+          "package_name": "com.example.catsapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "205098305629-3uo1jtkoe3onh3pumjm29soa5022jd3d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.catsapp",
+            "certificate_hash": "1f7b326098f60cf61c3abb853392957dc1a8868c"
+          }
+        },
+        {
+          "client_id": "205098305629-nqv4hv6d1cq5ek5mpq811mup1bgrtjrq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpNlOlKP1ayVJAb9yPx5cvDP9-qS8nEd0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "205098305629-nqv4hv6d1cq5ek5mpq811mup1bgrtjrq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

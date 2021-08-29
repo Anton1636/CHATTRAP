@@ -12,6 +12,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CaTsApp">
+        <activity android:name=".Activities.DisplayStatusActivity"></activity>
+        <activity android:name=".Activities.DialogViewUserActivity" />
+        <activity android:name=".Activities.ContactsActivity" />
+        <activity android:name=".Activities.ViewImageActivity" />
+        <activity android:name=".Activities.SplashScreenActivity" />
+        <activity android:name=".Activities.ProfileActivity" />
+        <activity android:name=".Activities.SettingActivity" />
+        <activity android:name=".Activities.UserProfileActivity" />
+        <activity android:name=".Activities.LogInSignUp.DialogReviewSendImage" />
         <activity android:name=".Activities.PhoneNumberActivity" />
         <activity android:name=".Activities.OTPActivity" />
         <activity android:name=".Activities.GroupChatActivity" />
@@ -34,7 +43,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".Activities.MainActivity" />
         <!--
  Set custom default icon. This is used when no icon is set for incoming notification messages.
@@ -50,7 +58,6 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/mainColor" />
-
     </application>
 
 </manifest>

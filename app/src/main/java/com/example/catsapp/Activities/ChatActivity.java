@@ -5,7 +5,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -14,12 +16,14 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -31,10 +35,16 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.devlomi.record_view.OnBasketAnimationEnd;
 import com.devlomi.record_view.OnRecordListener;
+import com.example.catsapp.Activities.LogInSignUp.DialogReviewSendImage;
+import com.example.catsapp.Adapters.GroupMessagesAdapter;
 import com.example.catsapp.Adapters.MessagesAdapter;
 import com.example.catsapp.Models.Message;
+import com.example.catsapp.OnReadChatCallBack;
 import com.example.catsapp.R;
+import com.example.catsapp.Secvice.FirebaseService;
+import com.example.catsapp.Secvice.GroupChatService;
 import com.example.catsapp.databinding.ActivityChatBinding;
+import com.example.catsapp.databinding.ActivityGroupChatBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -52,6 +62,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -59,187 +70,61 @@ import static android.content.ContentValues.TAG;
 
 public class ChatActivity extends AppCompatActivity {
 
+    private static final String TAG = "GroupChatActivity";
     private static final int REQUEST_CORD_PERMISSION = 332;
-    ActivityChatBinding binding;
+    private ActivityGroupChatBinding binding;
+    private String receiverID;
+    private GroupMessagesAdapter adapder;
+    private List<Message> list = new ArrayList<>();
+    private String userProfile,userName;
+    private boolean isActionShown = false;
+    private GroupChatService chatService;
+    private int IMAGE_GALLERY_REQUEST = 111;
+    private Uri imageUri;
 
-    MessagesAdapter adapter;
-    ArrayList<Message> messages;
-
-    String senderRoom, receiverRoom;
-
-    FirebaseDatabase database;
-    FirebaseStorage storage;
-
-    ProgressDialog dialog;
-    String senderUid;
-    String receiverUid;
-
+    //Audio
     private MediaRecorder mediaRecorder;
     private String audio_path;
     private String sTime;
-    MessagesAdapter messagesAdapter = new MessagesAdapter();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_group_chat);
 
-        binding = ActivityChatBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        initialize();
+        initBtnClick();
+        readChats();
+    }
 
-        setSupportActionBar(binding.toolbar);
+    private void initialize()
+    {
 
-        database = FirebaseDatabase.getInstance();
-        storage = FirebaseStorage.getInstance();
-        dialog = new ProgressDialog(this);
+        Intent intent = getIntent();
+        userName = intent.getStringExtra("userName");
+        receiverID = intent.getStringExtra("userID");
+        userProfile = intent.getStringExtra("userProfile");
 
-        dialog.setMessage("Uploading image...");
-        dialog.setCancelable(false);
+        chatService = new GroupChatService(this,receiverID);
 
-        messages = new ArrayList<>();
-
-        String name = getIntent().getStringExtra("name");
-        String profile = getIntent().getStringExtra("image");
-
-        binding.name.setText(name);
-
-        Glide.with(ChatActivity.this).load(profile).placeholder(R.drawable.avatar).into(binding.profile);
-
-        binding.imageView2.setOnClickListener(new View.OnClickListener()
+        if (receiverID!=null)
         {
-            @Override
-            public void onClick(View v)
+            Log.d(TAG, "onCreate: receiverID "+receiverID);
+            binding.tvUsername.setText(userName);
+            if (userProfile != null)
             {
-                finish();
-            }
-        });
-
-        receiverUid = getIntent().getStringExtra("uid");
-        senderUid = FirebaseAuth.getInstance().getUid();
-
-        database.getReference().child("presence").child(receiverUid).addValueEventListener(new ValueEventListener()
-        {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists())
+                if (userProfile.equals(""))
                 {
-                    String status = snapshot.getValue(String.class);
-
-                    if(!status.isEmpty())
-                    {
-                        if(status.equals("Offline"))
-                        {
-                            binding.status.setVisibility(View.GONE);
-                        }
-                        else
-                        {
-                            binding.status.setText(status);
-                            binding.status.setVisibility(View.VISIBLE);
-                        }
-                    }
+                    binding.imageProfile.setImageResource(R.drawable.avatar);  // set  default image when profile user is null
+                }
+                else {
+                    Glide.with(this).load(userProfile).into( binding.imageProfile);
                 }
             }
+        }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error)
-            {
-
-            }
-        });
-
-        senderRoom = senderUid + receiverUid;
-        receiverRoom = receiverUid + senderUid;
-        adapter = new MessagesAdapter(this, messages, senderRoom, receiverRoom);
-
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        binding.recyclerView.setAdapter(adapter);
-
-        database.getReference().child("chats")
-                .child(senderRoom)
-                .child("messages")
-                .addValueEventListener(new ValueEventListener()
-                {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot)
-                    {
-                        messages.clear();
-
-                        for(DataSnapshot snapshot1 : snapshot.getChildren())
-                        {
-                            Message message = snapshot1.getValue(Message.class);
-                            message.setMessageId(snapshot1.getKey());
-                            messages.add(message);
-                        }
-                        adapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error)
-                    {
-
-                    }
-                });
-
-        binding.sendBtn.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v) {
-                String messageTxt = binding.messageBox.getText().toString();
-                Date date = new Date();
-                Message message = new Message(messageTxt, senderUid, date.getTime());
-
-                binding.messageBox.setText("");
-
-                String randomKey = database.getReference().push().getKey();
-                HashMap<String, Object> lastMsgObj = new HashMap<>();
-
-                lastMsgObj.put("lastMsg", message.getMessage());
-                lastMsgObj.put("lastMsgTime", date.getTime());
-
-                database.getReference().child("chats").child(senderRoom).updateChildren(lastMsgObj);
-                database.getReference().child("chats").child(receiverRoom).updateChildren(lastMsgObj);
-
-                database.getReference().child("chats")
-                        .child(senderRoom)
-                        .child("messages")
-                        .child(randomKey)
-                        .setValue(message).addOnSuccessListener(new OnSuccessListener<Void>()
-                {
-                    @Override
-                    public void onSuccess(Void aVoid)
-                    {
-                        database.getReference().child("chats")
-                                .child(receiverRoom)
-                                .child("messages")
-                                .child(randomKey)
-                                .setValue(message).addOnSuccessListener(new OnSuccessListener<Void>()
-                        {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-
-
-                            }
-                        });
-                    }
-                });
-
-            }
-        });
-
-        binding.attachment.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/*");
-                startActivityForResult(intent, 25);
-            }
-        });
-
-        final Handler handler = new Handler();
-
-        binding.messageBox.addTextChangedListener(new TextWatcher()
+        binding.edMessage.addTextChangedListener(new TextWatcher()
         {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after)
@@ -250,14 +135,13 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count)
             {
-                if(TextUtils.isEmpty(binding.messageBox.getText().toString()))
+                if (TextUtils.isEmpty(binding.edMessage.getText().toString()))
                 {
-                    binding.sendBtn.setVisibility(View.INVISIBLE);
+                    binding.btnSend.setVisibility(View.INVISIBLE);
                     binding.recordButton.setVisibility(View.VISIBLE);
                 }
-                else
-                {
-                    binding.sendBtn.setVisibility(View.VISIBLE);
+                else {
+                    binding.btnSend.setVisibility(View.VISIBLE);
                     binding.recordButton.setVisibility(View.INVISIBLE);
                 }
             }
@@ -265,50 +149,43 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s)
             {
-                database.getReference().child("presence").child(senderUid).setValue("typing...");
-                handler.removeCallbacksAndMessages(null);
-                handler.postDelayed(userStoppedTyping,1000);
-            }
 
-            Runnable userStoppedTyping = new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    database.getReference().child("presence").child(senderUid).setValue("Online");
-                }
-            };
+            }
         });
 
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-//        getSupportActionBar().setTitle(name);
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL,false);
+        layoutManager.setStackFromEnd(true);
+        binding.recyclerView.setLayoutManager(layoutManager);
+        binding.recyclerView.setHasFixedSize(true);
         binding.recordButton.setRecordView(binding.recordView);
         binding.recordView.setOnRecordListener(new OnRecordListener()
         {
             @Override
             public void onStart()
             {
-                if(!checkPermisionFromDevice())
+
+                //Start Recording..
+                if (!checkPermissionFromDevice())
                 {
-                    binding.messageBox.setVisibility(View.INVISIBLE);
-                    binding.attachment.setVisibility(View.INVISIBLE);
-                    binding.camera.setVisibility(View.INVISIBLE);
+                    binding.btnEmoji.setVisibility(View.INVISIBLE);
+                    binding.btnFile.setVisibility(View.INVISIBLE);
+                    binding.btnCamera.setVisibility(View.INVISIBLE);
+                    binding.edMessage.setVisibility(View.INVISIBLE);
 
                     startRecord();
+
                     Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
                     if (vibrator != null)
                     {
                         vibrator.vibrate(100);
                     }
+
                 }
-                else
-                {
+                else {
                     requestPermission();
                 }
+
             }
 
             @Override
@@ -318,7 +195,8 @@ public class ChatActivity extends AppCompatActivity {
                 {
                     mediaRecorder.reset();
                 }
-                catch (Exception e)
+                catch
+                (Exception e)
                 {
                     e.printStackTrace();
                 }
@@ -327,13 +205,15 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onFinish(long recordTime)
             {
-                binding.messageBox.setVisibility(View.VISIBLE);
-                binding.attachment.setVisibility(View.VISIBLE);
-                binding.camera.setVisibility(View.VISIBLE);
+                binding.btnEmoji.setVisibility(View.VISIBLE);
+                binding.btnFile.setVisibility(View.VISIBLE);
+                binding.btnCamera.setVisibility(View.VISIBLE);
+                binding.edMessage.setVisibility(View.VISIBLE);
 
-                try {
+                //Stop Recording..
+                try
+                {
                     sTime = getHumanTimeText(recordTime);
-
                     stopRecord();
                 }
                 catch (Exception e)
@@ -345,19 +225,127 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onLessThanSecond()
             {
-                binding.messageBox.setVisibility(View.VISIBLE);
-                binding.attachment.setVisibility(View.VISIBLE);
-                binding.camera.setVisibility(View.VISIBLE);
+                binding.btnEmoji.setVisibility(View.VISIBLE);
+                binding.btnFile.setVisibility(View.VISIBLE);
+                binding.btnCamera.setVisibility(View.VISIBLE);
+                binding.edMessage.setVisibility(View.VISIBLE);
             }
         });
-        binding.recordView.setOnBasketAnimationEndListener(new OnBasketAnimationEnd() {
+        binding.recordView.setOnBasketAnimationEndListener(new OnBasketAnimationEnd()
+        {
             @Override
-            public void onAnimationEnd() {
-                binding.messageBox.setVisibility(View.VISIBLE);
-                binding.attachment.setVisibility(View.VISIBLE);
-                binding.camera.setVisibility(View.VISIBLE);
+            public void onAnimationEnd()
+            {
+                binding.btnEmoji.setVisibility(View.VISIBLE);
+                binding.btnFile.setVisibility(View.VISIBLE);
+                binding.btnCamera.setVisibility(View.VISIBLE);
+                binding.edMessage.setVisibility(View.VISIBLE);
             }
         });
+
+    }
+
+    @SuppressLint("DefaultLocale")
+    private String getHumanTimeText(long milliseconds)
+    {
+        return String.format("%02d",
+                TimeUnit.MILLISECONDS.toSeconds(milliseconds) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds)));
+    }
+
+    private void readChats()
+    {
+        chatService.readChatData(new OnReadChatCallBack()
+        {
+            @Override
+            public void onReadSuccess(List<Message> list)
+            {
+                Log.d(TAG, "onReadSuccess: List "+list.size());
+                binding.recyclerView.setAdapter(new GroupMessagesAdapter(list,ChatActivity.this));
+            }
+
+            @Override
+            public void onReadFailed() {
+                Log.d(TAG, "onReadFailed: ");
+            }
+        });
+    }
+
+    private void initBtnClick(){
+        binding.btnSend.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                if (!TextUtils.isEmpty(binding.edMessage.getText().toString())){
+                    chatService.sendTextMsg(binding.edMessage.getText().toString());
+                    binding.edMessage.setText("");
+                }
+            }
+        });
+
+        binding.imageProfile.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                startActivity(new Intent(ChatActivity.this, UserProfileActivity.class)
+                        .putExtra("userID",receiverID)
+                        .putExtra("userProfile",userProfile)
+                        .putExtra("userName",userName));
+            }
+        });
+
+        binding.btnFile.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                if (isActionShown)
+                {
+                    binding.layoutActions.setVisibility(View.GONE);
+                    isActionShown = false;
+                }
+                else {
+                    binding.layoutActions.setVisibility(View.VISIBLE);
+                    isActionShown = true;
+                }
+
+            }
+        });
+
+        binding.btnGallery.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                openGallery();
+            }
+        });
+    }
+
+    private void openGallery(){
+
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "select image"), IMAGE_GALLERY_REQUEST);
+    }
+
+    private boolean checkPermissionFromDevice()
+    {
+        int write_external_strorage_result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int record_audio_result = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
+
+        return write_external_strorage_result == PackageManager.PERMISSION_DENIED || record_audio_result == PackageManager.PERMISSION_DENIED;
+    }
+
+    private void requestPermission()
+    {
+        ActivityCompat.requestPermissions(this, new String[]{
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.RECORD_AUDIO
+        }, REQUEST_CORD_PERMISSION);
     }
 
     private void startRecord()
@@ -368,46 +356,48 @@ public class ChatActivity extends AppCompatActivity {
         {
             mediaRecorder.prepare();
             mediaRecorder.start();
+            //  Toast.makeText(InChatActivity.this, "Recording...", Toast.LENGTH_LONG).show();
         }
         catch (IOException e)
         {
             e.printStackTrace();
-
-            Toast.makeText(ChatActivity.this, "Recording Error, Please restart app", Toast.LENGTH_LONG).show();
+            Toast.makeText(ChatActivity.this, "Recording Error , Please restart your app ", Toast.LENGTH_LONG).show();
         }
+
     }
 
     private void stopRecord()
     {
         try
         {
-            if(mediaRecorder != null)
+            if (mediaRecorder != null)
             {
                 mediaRecorder.stop();
                 mediaRecorder.reset();
                 mediaRecorder.release();
                 mediaRecorder = null;
 
-                messagesAdapter.sendVoice(audio_path);
+                //sendVoice();
+                chatService.sendVoice(audio_path);
             }
-            else
-            {
+            else {
                 Toast.makeText(getApplicationContext(), "Null", Toast.LENGTH_LONG).show();
             }
+
         }
         catch (Exception e)
         {
-            Toast.makeText(getApplicationContext(), "Stop Recording Error:" + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Stop Recording Error :" + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
     private void setUpMediaRecorder()
     {
         String path_save = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + UUID.randomUUID().toString() + "audio_record.m4a";
-
         audio_path = path_save;
 
         mediaRecorder = new MediaRecorder();
+
         try
         {
             mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -417,31 +407,8 @@ public class ChatActivity extends AppCompatActivity {
         }
         catch (Exception e)
         {
-            Log.d(TAG, "setUpMediaRecord:" + e.getMessage());
+            Log.d(TAG, "setUpMediaRecord: " + e.getMessage());
         }
-    }
-
-    @SuppressLint({"DefaultLocate", "DefaultLocale"})
-    private String getHumanTimeText(long milliseconds)
-    {
-        return String.format("%02d", TimeUnit.MILLISECONDS.toSeconds(milliseconds) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds)));
-    }
-
-    private void requestPermission()
-    {
-        ActivityCompat.requestPermissions(this, new String[]
-                {
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.RECORD_AUDIO
-                }, REQUEST_CORD_PERMISSION);
-    }
-
-    private boolean checkPermisionFromDevice()
-    {
-        int write_external_storage_result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        int record_audio_result = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
-
-        return write_external_storage_result == PackageManager.PERMISSION_DENIED || record_audio_result == PackageManager.PERMISSION_DENIED;
     }
 
     @Override
@@ -449,112 +416,60 @@ public class ChatActivity extends AppCompatActivity {
     {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == 25)
+        if (requestCode == IMAGE_GALLERY_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null)
         {
-            if(data != null)
+            imageUri = data.getData();
+
+            //uploadToFirebase();
+            try
             {
-                if(data.getData() != null)
-                {
-                    Uri selectedImage = data.getData();
-                    Calendar calendar = Calendar.getInstance();
-                    StorageReference reference = storage.getReference().child("chats").child(calendar.getTimeInMillis() + "");
-
-                    dialog.show();
-
-                    reference.putFile(selectedImage).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>()
-                    {
-                        @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task)
-                        {
-                            dialog.dismiss();
-
-                            if(task.isSuccessful())
-                            {
-                                reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>()
-                                {
-                                    @Override
-                                    public void onSuccess(Uri uri)
-                                    {
-                                        String filePath = uri.toString();
-                                        String messageTxt = binding.messageBox.getText().toString();
-                                        Date date = new Date();
-                                        Message message = new Message(messageTxt, senderUid, date.getTime());
-
-                                        message.setMessage("photo");
-                                        message.setImageUrl(filePath);
-                                        binding.messageBox.setText("");
-
-                                        String randomKey = database.getReference().push().getKey();
-                                        HashMap<String, Object> lastMsgObj = new HashMap<>();
-
-                                        lastMsgObj.put("lastMsg", message.getMessage());
-                                        lastMsgObj.put("lastMsgTime", date.getTime());
-
-                                        database.getReference().child("chats").child(senderRoom).updateChildren(lastMsgObj);
-                                        database.getReference().child("chats").child(receiverRoom).updateChildren(lastMsgObj);
-
-                                        database.getReference().child("chats")
-                                                .child(senderRoom)
-                                                .child("messages")
-                                                .child(randomKey)
-                                                .setValue(message).addOnSuccessListener(new OnSuccessListener<Void>()
-                                        {
-                                            @Override
-                                            public void onSuccess(Void aVoid)
-                                            {
-                                                database.getReference().child("chats")
-                                                        .child(receiverRoom)
-                                                        .child("messages")
-                                                        .child(randomKey)
-                                                        .setValue(message).addOnSuccessListener(new OnSuccessListener<Void>()
-                                                {
-                                                    @Override
-                                                    public void onSuccess(Void aVoid)
-                                                    {
-
-                                                    }
-                                                });
-                                            }
-                                        });
-
-                                        Toast.makeText(ChatActivity.this, filePath, Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }
-                        }
-                    });
-                }
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                reviewImage(bitmap);
             }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
         }
     }
 
-    @Override
-    protected void onResume()
-    {
-        super.onResume();
-        String currentId = FirebaseAuth.getInstance().getUid();
-        database.getReference().child("presence").child(currentId).setValue("Online");
-    }
+    private void reviewImage(Bitmap bitmap){
+        new DialogReviewSendImage(ChatActivity.this, bitmap).show(new DialogReviewSendImage.OnCallBack()
+        {
+            @Override
+            public void onButtonSendClick()
+            {
+                // to Upload Image to firebase storage to get url image...
+                if (imageUri!=null)
+                {
+                    final ProgressDialog progressDialog = new ProgressDialog(ChatActivity.this);
+                    progressDialog.setMessage("Sending image...");
+                    progressDialog.show();
 
-    @Override
-    protected void onPause()
-    {
-        super.onPause();
-        String currentId = FirebaseAuth.getInstance().getUid();
-        database.getReference().child("presence").child(currentId).setValue("Offline");
-    }
+                    //hide action buttonss
+                    binding.layoutActions.setVisibility(View.GONE);
+                    isActionShown = false;
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        getMenuInflater().inflate(R.menu.chat_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
+                    new FirebaseService(ChatActivity.this).uploadImageToFireBaseStorage(imageUri, new FirebaseService.OnCallBack()
+                    {
+                        @Override
+                        public void onUploadSuccess(String imageUrl)
+                        {
+                            // to send chat image//
+                            chatService.sendImage(imageUrl);
+                            progressDialog.dismiss();
+                        }
 
-    @Override
-    public boolean onSupportNavigateUp()
-    {
-        finish();
-        return super.onSupportNavigateUp();
+                        @Override
+                        public void onUploadFailed(Exception e)
+                        {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+
+            }
+        });
     }
 }

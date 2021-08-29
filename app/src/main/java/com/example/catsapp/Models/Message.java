@@ -1,20 +1,50 @@
 package com.example.catsapp.Models;
 
 public class Message {
-    private String messageId, message, senderId, imageUrl;
+    private String messageId, message, senderId, imageUrl, receiver, url, type;
     private long timestamp;
     private int feeling = -1;
 
     public Message() {
     }
 
-    public Message(String message, String senderId, long timestamp) {
+    public Message(String messageId, String message, String senderId, String imageUrl, String receiver, String url, String type, long timestamp, int feeling) {
+        this.messageId = messageId;
         this.message = message;
         this.senderId = senderId;
+        this.imageUrl = imageUrl;
+        this.receiver = receiver;
+        this.url = url;
+        this.type = type;
         this.timestamp = timestamp;
+        this.feeling = feeling;
     }
 
-    public Message(String currentDate, String s, String voiceUrl, String voice, String uid, String receiverID) {
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Message(String currentDate, String text, String s, String text1, String uid, String receiverID) {
+    }
+
+    public String getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
     }
 
     public String getMessageId() {

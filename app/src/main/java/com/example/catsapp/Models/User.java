@@ -1,13 +1,10 @@
 package com.example.catsapp.Models;
 
 public class User {
-    private String fullName, username, email, password, date, gender, phoneNo, profileImage;
+    private String id, fullName, username, email, password, date, gender, phoneNo, profileImage;
 
-    public User(String fullName, String username, String email, String password, String date, String gender, String phoneNo) {
-
-    }
-
-    public User(String fullName, String username, String email, String password, String date, String gender, String phoneNo, String profileImage) {
+    public User(String id, String fullName, String username, String email, String password, String date, String gender, String phoneNo, String profileImage) {
+        this.id = id;
         this.fullName = fullName;
         this.username = username;
         this.email = email;
@@ -16,6 +13,21 @@ public class User {
         this.gender = gender;
         this.phoneNo = phoneNo;
         this.profileImage = profileImage;
+    }
+
+    public User() {
+
+    }
+
+    public User(String fullName, String username, String email, String password, String date, String gender, String phoneNo) {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getFullName() {
