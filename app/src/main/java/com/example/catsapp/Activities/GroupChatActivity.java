@@ -81,14 +81,98 @@ public class GroupChatActivity extends AppCompatActivity {
     private String audio_path;
     private String sTime;
 
+    FirebaseDatabase database;
+    FirebaseStorage storage;
+    ProgressDialog dialog;
+    String senderUid;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_group_chat);
+
+        setContentView(binding.getRoot());
+
+        getSupportActionBar().setTitle("Group Chat");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        senderUid = FirebaseAuth.getInstance().getUid();
+        database = FirebaseDatabase.getInstance();
+        storage = FirebaseStorage.getInstance();
+
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Uploading image...");
+        dialog.setCancelable(false);
+
+        list = new ArrayList<>();
+        adapder = new GroupMessagesAdapter(this, list);
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.recyclerView.setAdapter(adapder);
+
+        database.getReference().child("public")
+                .addValueEventListener(new ValueEventListener()
+                {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot)
+                    {
+                        list.clear();
+                        for(DataSnapshot snapshot1 : snapshot.getChildren())
+                        {
+                            Message message = snapshot1.getValue(Message.class);
+                            message.setMessageId(snapshot1.getKey());
+                            list.add(message);
+                        }
+
+                        adapder.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error)
+                    {
+
+                    }
+                });
+
+        binding.btnSend.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                String messageTxt = binding.edMessage.getText().toString();
+
+                Date date = new Date();
+                Message message = new Message(messageTxt, senderUid, date.getTime());
+                binding.edMessage.setText("");
+
+                database.getReference().child("public")
+                        .push()
+                        .setValue(message);
+            }
+        });
+
+        binding.btnDoc.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                Intent intent = new Intent();
+
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(intent, 25);
+            }
+        });
 
         initialize();
         initBtnClick();
         readChats();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return super.onSupportNavigateUp();
     }
 
     private void initialize(){
@@ -359,18 +443,53 @@ public class GroupChatActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == IMAGE_GALLERY_REQUEST
-                && resultCode == RESULT_OK
-                && data != null
-                && data.getData() != null){
+        if (requestCode == IMAGE_GALLERY_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null)
+        {
+            Uri selectedImage = data.getData();
+            Calendar calendar = Calendar.getInstance();
+            StorageReference reference = storage.getReference().child("chats").child(calendar.getTimeInMillis() + "");
+            dialog.show();
+
+            reference.putFile(selectedImage).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>()
+            {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task)
+                {
+                    dialog.dismiss();
+
+                    if(task.isSuccessful())
+                    {
+                        reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>()
+                        {
+                            @Override
+                            public void onSuccess(Uri uri)
+                            {
+                                String filePath = uri.toString();
+                                String messageTxt = binding.edMessage.getText().toString();
+                                Date date = new Date();
+                                Message message = new Message(messageTxt, senderUid, date.getTime());
+
+                                message.setMessage("photo");
+                                message.setImageUrl(filePath);
+                                binding.edMessage.setText("");
+                                database.getReference().child("public").push().setValue(message);
+                                //Toast.makeText(ChatActivity.this, filePath, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }
+            });
 
             imageUri = data.getData();
 
             //uploadToFirebase();
-            try {
+            try
+            {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
                 reviewImage(bitmap);
-            }catch (Exception e){
+            }
+            catch (Exception e)
+            {
                 e.printStackTrace();
             }
 

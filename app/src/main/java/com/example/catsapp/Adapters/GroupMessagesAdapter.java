@@ -53,6 +53,9 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter {
     public GroupMessagesAdapter(List<Message> list, ChatActivity chatActivity) {
     }
 
+    public GroupMessagesAdapter(GroupChatActivity groupChatActivity, List<Message> list) {
+    }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

@@ -20,6 +20,9 @@ public class Message {
         this.feeling = feeling;
     }
 
+    public Message(String messageTxt, String senderUid, long time) {
+    }
+
     public String getUrl() {
         return url;
     }
