@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/tools"
+    android:background="@color/mainColor"
+    android:orientation="vertical"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    card_view:cardUseCompatPadding="true"
+    card_view:cardElevation="5dp"
+    card_view:contentPadding="10dp"
+    app:ignore="NamespaceTypo">
+
+
+    <RelativeLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:orientation="vertical"
+        android:background="@color/mainColor">
+
+        <com.example.catsapp.network.CircularNetworkImageView
+            android:id="@+id/profileR"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/avatar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@color/mainColor"/>
+
+        <TextView
+            android:id="@+id/fullNameR"
+            android:textSize="22sp"
+            android:text="FullName"
+            android:background="@color/mainColor"
+            android:textColor="@color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:layout_toRightOf="@+id/profileR"
+            android:layout_marginStart="20dp"/>
+
+        <TextView
+            android:id="@+id/phone_numberR"
+            android:textSize="18sp"
+            android:text="Phone Number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="italic"
+            android:background="@color/mainColor"
+            android:textColor="@color/white"
+            android:layout_toRightOf="@+id/profileR"
+            android:layout_below="@+id/fullNameR"
+            android:layout_marginStart="20dp" />
+
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>
