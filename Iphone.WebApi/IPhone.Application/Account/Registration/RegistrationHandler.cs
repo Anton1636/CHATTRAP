@@ -6,16 +6,14 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace IPhone.Application.Account.Registration
 {
-	public class RegistrationHandler : IRequestHandler<RegistrationCommand, UserViewModel>
+    public class RegistrationHandler : IRequestHandler<RegistrationCommand, UserViewModel>
 	{
 		private readonly UserManager<AppUser> _userManager;
 		private readonly IJwtGenerator _jwtGenerator;

@@ -1,15 +1,8 @@
-﻿using Iphone.WebApi.DTO;
-using Iphone.WebApi.Helpers;
-using IPhone.Application.Account;
+﻿using IPhone.Application.Account;
 using IPhone.Application.Account.Login;
 using IPhone.Application.Account.Registration;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Iphone.WebApi.Controllers

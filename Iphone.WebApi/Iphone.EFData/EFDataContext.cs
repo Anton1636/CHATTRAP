@@ -2,11 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Iphone.EFData
 {
@@ -40,7 +35,7 @@ namespace Iphone.EFData
         }
 
         //public DbSet<CallList> CallLists { get; set; }
-        //public DbSet<Message> Messages { get; set; }
+        public DbSet<Message> Messages { get; set; }
         //public DbSet<MessagesList> MessagesLists { get; set; }
         //public DbSet<Status> Status { get; set; }
         //public DbSet<UserStatus> UserStatus { get; set; }
