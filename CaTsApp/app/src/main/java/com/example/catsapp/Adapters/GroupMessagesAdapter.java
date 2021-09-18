@@ -115,7 +115,7 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter
 
             message.setFeeling(pos);
 
-            FirebaseDatabase.getInstance().getReference().child("public").child(message.getMessageId()).setValue(message);
+            //FirebaseDatabase.getInstance().getReference().child("public").child(message.getMessageId()).setValue(message);
 
             return true; // true is closing popup, false is requesting a new selection
         });
@@ -133,21 +133,21 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter
                 Glide.with(context).load(message.getImageUrl()).placeholder(R.drawable.placeholder).into(viewHolder.binding.image);
             }
 
-            FirebaseDatabase.getInstance().getReference().child("users").child(message.getSenderId()).addListenerForSingleValueEvent(new ValueEventListener()
-            {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot)
-                {
-                    if(snapshot.exists())
-                    {
-                        User user = snapshot.getValue(User.class);
-                        viewHolder.binding.name.setText("@" + user.getUsername());
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) { }
-            });
+//            FirebaseDatabase.getInstance().getReference().child("users").child(message.getSenderId()).addListenerForSingleValueEvent(new ValueEventListener()
+//            {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot snapshot)
+//                {
+//                    if(snapshot.exists())
+//                    {
+//                        User user = snapshot.getValue(User.class);
+//                        viewHolder.binding.name.setText("@" + user.getUsername());
+//                    }
+//                }
+//
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError error) { }
+//            });
 
             viewHolder.binding.message.setText(message.getMessage());
 
@@ -237,24 +237,24 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter
                 viewHolder.binding.message.setVisibility(View.GONE);
                 Glide.with(context).load(message.getImageUrl()).placeholder(R.drawable.placeholder).into(viewHolder.binding.image);
             }
-            FirebaseDatabase.getInstance().getReference().child("users").child(message.getSenderId()).addListenerForSingleValueEvent(new ValueEventListener()
-            {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot)
-                        {
-                            if(snapshot.exists())
-                            {
-                                User user = snapshot.getValue(User.class);
-                                viewHolder.binding.name.setText("@" + user.getUsername());
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error)
-                        {
-
-                        }
-                    });
+//            FirebaseDatabase.getInstance().getReference().child("users").child(message.getSenderId()).addListenerForSingleValueEvent(new ValueEventListener()
+//            {
+//                        @Override
+//                        public void onDataChange(@NonNull DataSnapshot snapshot)
+//                        {
+//                            if(snapshot.exists())
+//                            {
+//                                User user = snapshot.getValue(User.class);
+//                                viewHolder.binding.name.setText("@" + user.getUsername());
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onCancelled(@NonNull DatabaseError error)
+//                        {
+//
+//                        }
+//                    });
 
             viewHolder.binding.message.setText(message.getMessage());
 

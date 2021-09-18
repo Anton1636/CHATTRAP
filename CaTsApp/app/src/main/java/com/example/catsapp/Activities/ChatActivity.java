@@ -1,6 +1,5 @@
 package com.example.catsapp.Activities;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -8,10 +7,8 @@ import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -21,52 +18,41 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
 import com.devlomi.record_view.OnBasketAnimationEnd;
 import com.devlomi.record_view.OnRecordListener;
 import com.example.catsapp.Activities.LogInSignUp.DialogReviewSendImage;
+import com.example.catsapp.Activities.LogInSignUp.VerifyOTPActivity;
+import com.example.catsapp.Activities.application.HomeApplication;
 import com.example.catsapp.Adapters.GroupMessagesAdapter;
-import com.example.catsapp.Adapters.MessagesAdapter;
+import com.example.catsapp.Helpers.DataStatic;
+import com.example.catsapp.Models.LoginResultDto;
 import com.example.catsapp.Models.Message;
+import com.example.catsapp.Models.MessageResultDto;
 import com.example.catsapp.OnReadChatCallBack;
 import com.example.catsapp.R;
-import com.example.catsapp.Secvice.FirebaseService;
 import com.example.catsapp.Secvice.GroupChatService;
-import com.example.catsapp.databinding.ActivityChatBinding;
+import com.example.catsapp.Secvice.JwtSecurityService;
+import com.example.catsapp.Secvice.NetworkService;
 import com.example.catsapp.databinding.ActivityGroupChatBinding;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static android.content.ContentValues.TAG;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ChatActivity extends AppCompatActivity
 {
@@ -81,6 +67,7 @@ public class ChatActivity extends AppCompatActivity
     private GroupChatService chatService;
     private int IMAGE_GALLERY_REQUEST = 111;
     private Uri imageUri;
+    private EditText messageText;
 
     //Audio
     private MediaRecorder mediaRecorder;
@@ -92,6 +79,9 @@ public class ChatActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_group_chat);
+        DataStatic.id = "1";
+        messageText = findViewById(R.id.messageBox);
+
 
         initialize();
         initBtnClick();
@@ -100,11 +90,9 @@ public class ChatActivity extends AppCompatActivity
 
     private void initialize()
     {
-        Intent intent = getIntent();
-
-        userName = intent.getStringExtra("userName");
-        receiverID = intent.getStringExtra("userID");
-        userProfile = intent.getStringExtra("userProfile");
+        userName = DataStatic.username;
+        receiverID = DataStatic.id;
+        userProfile = DataStatic.image;
 
         chatService = new GroupChatService(this,receiverID);
 
@@ -120,7 +108,7 @@ public class ChatActivity extends AppCompatActivity
                     binding.imageProfile.setImageResource(R.drawable.avatar);  // set  default image when profile user is null
                 }
                 else {
-                    Glide.with(this).load(userProfile).into( binding.imageProfile);
+                    Glide.with(this).load(userProfile).into(binding.imageProfile);
                 }
             }
         }
@@ -279,8 +267,37 @@ public class ChatActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                if (!TextUtils.isEmpty(binding.edMessage.getText().toString())){
-                    chatService.sendTextMsg(binding.edMessage.getText().toString());
+                if (!TextUtils.isEmpty(binding.edMessage.getText().toString()))
+                {
+                    Message message = new Message();
+
+                    message.setMessage(messageText.toString());
+                    message.setSenderId(DataStatic.username);
+
+                    NetworkService.getInstance()
+                            .getJSONApi()
+                            .sendMessage(message)
+                            .enqueue(new Callback()
+                            {
+                                @Override
+                                public void onResponse(Call call, Response response)
+                                {
+                                    MessageResultDto result = (MessageResultDto) response.body();
+                                    JwtSecurityService jwtService = (JwtSecurityService) HomeApplication.getInstance();
+
+                                    jwtService.saveJwtToken(result.getToken());
+
+                                    Intent intent = new Intent(ChatActivity.this, MainActivity.class);
+                                    startActivity(intent);
+                                }
+
+                                @Override
+                                public void onFailure(Call call, Throwable t)
+                                {
+                                    Toast.makeText(ChatActivity.this, "Not to day!", Toast.LENGTH_SHORT).show();
+                                    t.printStackTrace();
+                                }
+                            });
                     binding.edMessage.setText("");
                 }
             }
@@ -452,22 +469,22 @@ public class ChatActivity extends AppCompatActivity
                     binding.layoutActions.setVisibility(View.GONE);
                     isActionShown = false;
 
-                    new FirebaseService(ChatActivity.this).uploadImageToFireBaseStorage(imageUri, new FirebaseService.OnCallBack()
-                    {
-                        @Override
-                        public void onUploadSuccess(String imageUrl)
-                        {
-                            // to send chat image//
-                            chatService.sendImage(imageUrl);
-                            progressDialog.dismiss();
-                        }
-
-                        @Override
-                        public void onUploadFailed(Exception e)
-                        {
-                            e.printStackTrace();
-                        }
-                    });
+//                    new FirebaseService(ChatActivity.this).uploadImageToFireBaseStorage(imageUri, new FirebaseService.OnCallBack()
+//                    {
+//                        @Override
+//                        public void onUploadSuccess(String imageUrl)
+//                        {
+//                            // to send chat image//
+//                            chatService.sendImage(imageUrl);
+//                            progressDialog.dismiss();
+//                        }
+//
+//                        @Override
+//                        public void onUploadFailed(Exception e)
+//                        {
+//                            e.printStackTrace();
+//                        }
+//                    });
                 }
 
             }

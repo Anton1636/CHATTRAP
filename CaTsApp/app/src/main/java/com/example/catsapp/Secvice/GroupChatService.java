@@ -2,11 +2,17 @@ package com.example.catsapp.Secvice;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.catsapp.Activities.LogInSignUp.VerifyOTPActivity;
+import com.example.catsapp.Activities.MainActivity;
+import com.example.catsapp.Activities.application.HomeApplication;
+import com.example.catsapp.Models.LoginResultDto;
 import com.example.catsapp.Models.Message;
 import com.example.catsapp.OnReadChatCallBack;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -30,11 +36,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class GroupChatService
 {
     private Context context;
-    private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-    private FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+//    private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+//    private FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private String receiverID;
 
     public GroupChatService(Context context, String receiverID)
@@ -50,92 +60,65 @@ public class GroupChatService
 
     public void readChatData(final OnReadChatCallBack onCallBack)
     {
-        reference.child("Chats").addValueEventListener(new ValueEventListener()
-        {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-            {
-                List<Message> list = new ArrayList<>();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren())
-                {
-                    Message chats = snapshot.getValue(Message.class);
-
-                    try
-                    {
-                        if (chats.getSenderId().equals(firebaseUser.getUid()) && chats.getReceiver().equals(receiverID) || chats.getReceiver().equals(firebaseUser.getUid()) && chats.getSenderId().equals(receiverID))
-                        {
-                            list.add(chats);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-                onCallBack.onReadSuccess(list);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError)
-            {
-                onCallBack.onReadFailed();
-            }
-        });
-    }
-
-    public void sendTextMsg(String text)
-    {
-        Message chats = new Message(getCurrentDate(), text, "", "TEXT", firebaseUser.getUid(), receiverID);
-
-        reference.child("Chats").push().setValue(chats).addOnSuccessListener(new OnSuccessListener<Void>()
-        {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d("Send", "onSuccess: ");
-            }
-        }).addOnFailureListener(new OnFailureListener()
-        {
-            @Override
-            public void onFailure(@NonNull Exception e)
-            {
-                Log.d("Send", "onFailure: "+e.getMessage());
-            }
-        });
-
-        //Add to ChatList
-        DatabaseReference chatRef1 = FirebaseDatabase.getInstance().getReference("ChatList").child(firebaseUser.getUid()).child(receiverID);
-        chatRef1.child("chatid").setValue(receiverID);
-
-        DatabaseReference chatRef2 = FirebaseDatabase.getInstance().getReference("ChatList").child(receiverID).child(firebaseUser.getUid());
-        chatRef2.child("chatid").setValue(firebaseUser.getUid());
+//        reference.child("Chats").addValueEventListener(new ValueEventListener()
+//        {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+//            {
+//                List<Message> list = new ArrayList<>();
+//                for (DataSnapshot snapshot : dataSnapshot.getChildren())
+//                {
+//                    Message chats = snapshot.getValue(Message.class);
+//
+//                    try
+//                    {
+//                        if (chats.getSenderId().equals(firebaseUser.getUid()) && chats.getReceiver().equals(receiverID) || chats.getReceiver().equals(firebaseUser.getUid()) && chats.getSenderId().equals(receiverID))
+//                        {
+//                            list.add(chats);
+//                        }
+//                    }
+//                    catch (Exception e)
+//                    {
+//                        e.printStackTrace();
+//                    }
+//                }
+//                onCallBack.onReadSuccess(list);
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError)
+//            {
+//                onCallBack.onReadFailed();
+//            }
+//        });
     }
 
     public void sendImage(String imageUrl)
     {
-        Message chats = new Message(getCurrentDate(), "", imageUrl, "IMAGE", firebaseUser.getUid(), receiverID);
+        //Message chats = new Message(getCurrentDate(), "", imageUrl, "IMAGE", firebaseUser.getUid(), receiverID);
 
-        reference.child("Chats").push().setValue(chats).addOnSuccessListener(new OnSuccessListener<Void>()
-        {
-            @Override
-            public void onSuccess(Void aVoid)
-            {
-                Log.d("Send", "onSuccess: ");
-            }
-        }).addOnFailureListener(new OnFailureListener()
-        {
-            @Override
-            public void onFailure(@NonNull Exception e)
-            {
-                Log.d("Send", "onFailure: "+e.getMessage());
-            }
-        });
-
-        //Add to ChatList
-        DatabaseReference chatRef1 = FirebaseDatabase.getInstance().getReference("ChatList").child(firebaseUser.getUid()).child(receiverID);
-        chatRef1.child("chatid").setValue(receiverID);
-
-        DatabaseReference chatRef2 = FirebaseDatabase.getInstance().getReference("ChatList").child(receiverID).child(firebaseUser.getUid());
-        chatRef2.child("chatid").setValue(firebaseUser.getUid());
+//        reference.child("Chats").push().setValue(chats).addOnSuccessListener(new OnSuccessListener<Void>()
+//        {
+//            @Override
+//            public void onSuccess(Void aVoid)
+//            {
+//                Log.d("Send", "onSuccess: ");
+//            }
+//        }).addOnFailureListener(new OnFailureListener()
+//        {
+//            @Override
+//            public void onFailure(@NonNull Exception e)
+//            {
+//                Log.d("Send", "onFailure: "+e.getMessage());
+//            }
+//        });
+//
+//        //Add to ChatList
+//        DatabaseReference chatRef1 = FirebaseDatabase.getInstance().getReference("ChatList").child(firebaseUser.getUid()).child(receiverID);
+//        chatRef1.child("chatid").setValue(receiverID);
+//
+//        DatabaseReference chatRef2 = FirebaseDatabase.getInstance().getReference("ChatList").child(receiverID).child(firebaseUser.getUid());
+//        chatRef2.child("chatid").setValue(firebaseUser.getUid());
     }
 
     public String getCurrentDate()
@@ -166,30 +149,30 @@ public class GroupChatService
                 while (!urlTask.isSuccessful()) ;
                 Uri downloadUrl = urlTask.getResult();
                 String voiceUrl = String.valueOf(downloadUrl);
-                Message chats = new Message(getCurrentDate(), "", voiceUrl, "VOICE", firebaseUser.getUid(), receiverID);
+                //Message chats = new Message(getCurrentDate(), "", voiceUrl, "VOICE", firebaseUser.getUid(), receiverID);
 
-                reference.child("Chats").push().setValue(chats).addOnSuccessListener(new OnSuccessListener<Void>()
-                {
-                    @Override
-                    public void onSuccess(Void aVoid)
-                    {
-                        Log.d("Send", "onSuccess: ");
-                    }
-                }).addOnFailureListener(new OnFailureListener()
-                {
-                    @Override
-                    public void onFailure(@NonNull Exception e)
-                    {
-                        Log.d("Send", "onFailure: "+e.getMessage());
-                    }
-                });
+//                reference.child("Chats").push().setValue(chats).addOnSuccessListener(new OnSuccessListener<Void>()
+//                {
+//                    @Override
+//                    public void onSuccess(Void aVoid)
+//                    {
+//                        Log.d("Send", "onSuccess: ");
+//                    }
+//                }).addOnFailureListener(new OnFailureListener()
+//                {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e)
+//                    {
+//                        Log.d("Send", "onFailure: "+e.getMessage());
+//                    }
+//                });
 
                 //Add to ChatList
-                DatabaseReference chatRef1 = FirebaseDatabase.getInstance().getReference("ChatList").child(firebaseUser.getUid()).child(receiverID);
-                chatRef1.child("chatid").setValue(receiverID);
-
-                DatabaseReference chatRef2 = FirebaseDatabase.getInstance().getReference("ChatList").child(receiverID).child(firebaseUser.getUid());
-                chatRef2.child("chatid").setValue(firebaseUser.getUid());
+//                DatabaseReference chatRef1 = FirebaseDatabase.getInstance().getReference("ChatList").child(firebaseUser.getUid()).child(receiverID);
+//                chatRef1.child("chatid").setValue(receiverID);
+//
+//                DatabaseReference chatRef2 = FirebaseDatabase.getInstance().getReference("ChatList").child(receiverID).child(firebaseUser.getUid());
+//                chatRef2.child("chatid").setValue(firebaseUser.getUid());
             }
         });
     }

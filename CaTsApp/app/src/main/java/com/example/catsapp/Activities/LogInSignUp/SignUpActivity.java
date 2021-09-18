@@ -22,7 +22,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SignUpActivity extends AppCompatActivity
+public class
+SignUpActivity extends AppCompatActivity
 {
     Button next, login;
     TextView titleText;
@@ -63,7 +64,6 @@ public class SignUpActivity extends AppCompatActivity
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
         {
-
             DataStatic.fullName = fullName.getEditText().getText().toString();
             DataStatic.username = username.getEditText().getText().toString();
             DataStatic.email = email.getEditText().getText().toString();

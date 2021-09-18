@@ -76,7 +76,6 @@ public class ContactsAdapter  extends RecyclerView.Adapter<ContactsAdapter.ViewH
 
         public ViewHolder(@NonNull View itemView)
         {
-
             super(itemView);
 
             imageProfile = itemView.findViewById(R.id.image_profile);

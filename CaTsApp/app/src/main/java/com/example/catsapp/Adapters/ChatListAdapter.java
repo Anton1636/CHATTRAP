@@ -41,7 +41,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.Holder
     @Override
     public void onBindViewHolder(@NonNull Holder holder, int position)
     {
-
         final ChatList chatlist = list.get(position);
 
         holder.tvName.setText(chatlist.getUserName());

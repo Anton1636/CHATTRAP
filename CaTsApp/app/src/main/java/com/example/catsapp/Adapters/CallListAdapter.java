@@ -39,7 +39,6 @@ public class CallListAdapter extends RecyclerView.Adapter<CallListAdapter.Holder
     @Override
     public void onBindViewHolder(@NonNull Holder holder, int position)
     {
-
         CallList callList = list.get(position);
 
         holder.tvName.setText(callList.getUserName());

@@ -48,29 +48,29 @@ public class StatusFragment extends Fragment
 
     private void getProfile()
     {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+//        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+//        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
-        firestore.collection("Users").document(firebaseUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>()
-        {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot)
-            {
-
-                String imageProfile = documentSnapshot.getString("imageProfile");
-
-                Glide.with(getContext()).load(imageProfile).into(binding.imageProfile);
-
-
-            }
-        }).addOnFailureListener(new OnFailureListener()
-        {
-            @Override
-            public void onFailure(@NonNull Exception e)
-            {
-
-            }
-        });
+//        firestore.collection("Users").document(firebaseUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>()
+//        {
+//            @Override
+//            public void onSuccess(DocumentSnapshot documentSnapshot)
+//            {
+//
+//                String imageProfile = documentSnapshot.getString("imageProfile");
+//
+//                Glide.with(getContext()).load(imageProfile).into(binding.imageProfile);
+//
+//
+//            }
+//        }).addOnFailureListener(new OnFailureListener()
+//        {
+//            @Override
+//            public void onFailure(@NonNull Exception e)
+//            {
+//
+//            }
+//        });
     }
 
 }

@@ -59,9 +59,9 @@ public class SetNewPasswordActivity extends AppCompatActivity
         String _newPassword = newPassword.getEditText().getText().toString().trim();
         String _phoneNumber = getIntent().getStringExtra("phoneNo");
 
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+       // DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
 
-        reference.child(_phoneNumber).child("password").setValue(_newPassword);
+        //reference.child(_phoneNumber).child("password").setValue(_newPassword);
 
         startActivity(new Intent(getApplicationContext(), ForgetPasswordSuccessMessageActivity.class));
 

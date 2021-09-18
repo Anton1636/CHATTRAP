@@ -27,19 +27,23 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.devlomi.record_view.OnBasketAnimationEnd;
 import com.devlomi.record_view.OnRecordListener;
 import com.example.catsapp.Activities.LogInSignUp.DialogReviewSendImage;
+import com.example.catsapp.Activities.application.HomeApplication;
 import com.example.catsapp.Adapters.GroupMessagesAdapter;
-import com.example.catsapp.Adapters.MessagesAdapter;
+import com.example.catsapp.Helpers.DataStatic;
 import com.example.catsapp.Models.Message;
+import com.example.catsapp.Models.MessageResultDto;
 import com.example.catsapp.OnReadChatCallBack;
 import com.example.catsapp.R;
-import com.example.catsapp.Secvice.FirebaseService;
 import com.example.catsapp.Secvice.GroupChatService;
+import com.example.catsapp.Secvice.JwtSecurityService;
+import com.example.catsapp.Secvice.NetworkService;
 import com.example.catsapp.databinding.ActivityGroupChatBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -61,7 +65,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static android.content.ContentValues.TAG;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class GroupChatActivity extends AppCompatActivity
 {
@@ -76,14 +82,15 @@ public class GroupChatActivity extends AppCompatActivity
     private GroupChatService chatService;
     private int IMAGE_GALLERY_REQUEST = 111;
     private Uri imageUri;
+    private EditText messageText;
 
     //Audio
     private MediaRecorder mediaRecorder;
     private String audio_path;
     private String sTime;
 
-    FirebaseDatabase database;
-    FirebaseStorage storage;
+    //FirebaseDatabase database;
+    //FirebaseStorage storage;
     ProgressDialog dialog;
     String senderUid;
 
@@ -99,8 +106,8 @@ public class GroupChatActivity extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         senderUid = FirebaseAuth.getInstance().getUid();
-        database = FirebaseDatabase.getInstance();
-        storage = FirebaseStorage.getInstance();
+        //database = FirebaseDatabase.getInstance();
+        //storage = FirebaseStorage.getInstance();
 
         dialog = new ProgressDialog(this);
         dialog.setMessage("Uploading image...");
@@ -110,29 +117,30 @@ public class GroupChatActivity extends AppCompatActivity
         adapder = new GroupMessagesAdapter(this, list);
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerView.setAdapter(adapder);
+        messageText = findViewById(R.id.ed_message);
 
-        database.getReference().child("public").addValueEventListener(new ValueEventListener()
-        {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot)
-            {
-                list.clear();
-                for(DataSnapshot snapshot1 : snapshot.getChildren())
-                {
-                    Message message = snapshot1.getValue(Message.class);
-
-                    message.setMessageId(snapshot1.getKey());
-                    list.add(message);
-                }
-                adapder.notifyDataSetChanged();
-            }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error)
-                    {
-
-                    }
-                });
+//        database.getReference().child("public").addValueEventListener(new ValueEventListener()
+//        {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot)
+//            {
+//                list.clear();
+//                for(DataSnapshot snapshot1 : snapshot.getChildren())
+//                {
+//                    Message message = snapshot1.getValue(Message.class);
+//
+//                    message.setMessageId(snapshot1.getKey());
+//                    list.add(message);
+//                }
+//                adapder.notifyDataSetChanged();
+//            }
+//
+//                    @Override
+//                    public void onCancelled(@NonNull DatabaseError error)
+//                    {
+//
+//                    }
+//                });
 
         binding.btnSend.setOnClickListener(new View.OnClickListener()
         {
@@ -145,9 +153,9 @@ public class GroupChatActivity extends AppCompatActivity
 
                 binding.edMessage.setText("");
 
-                database.getReference().child("public")
-                        .push()
-                        .setValue(message);
+//                database.getReference().child("public")
+//                        .push()
+//                        .setValue(message);
             }
         });
 
@@ -183,13 +191,13 @@ public class GroupChatActivity extends AppCompatActivity
         userName = intent.getStringExtra("userName");
         receiverID = intent.getStringExtra("userID");
         userProfile = intent.getStringExtra("userProfile");
-
         chatService = new GroupChatService(this,receiverID);
 
         if (receiverID!=null)
         {
             Log.d(TAG, "onCreate: receiverID "+receiverID);
             binding.tvUsername.setText(userName);
+
             if (userProfile != null)
             {
                 if (userProfile.equals(""))
@@ -246,7 +254,6 @@ public class GroupChatActivity extends AppCompatActivity
             @Override
             public void onStart()
             {
-                //Start Recording..
                 if (!checkPermissionFromDevice())
                 {
                     binding.btnEmoji.setVisibility(View.INVISIBLE);
@@ -288,7 +295,6 @@ public class GroupChatActivity extends AppCompatActivity
                 binding.btnCamera.setVisibility(View.VISIBLE);
                 binding.edMessage.setVisibility(View.VISIBLE);
 
-                //Stop Recording..
                 try
                 {
                     sTime = getHumanTimeText(recordTime);
@@ -358,17 +364,39 @@ public class GroupChatActivity extends AppCompatActivity
             {
                 if (!TextUtils.isEmpty(binding.edMessage.getText().toString()))
                 {
-                    chatService.sendTextMsg(binding.edMessage.getText().toString());
+                    Message message = new Message();
+
+                    message.setMessage(messageText.toString());
+                    message.setSenderId(DataStatic.username);
+
+                    NetworkService.getInstance()
+                            .getJSONApi()
+                            .sendMessage(message)
+                            .enqueue(new Callback()
+                            {
+                                @Override
+                                public void onResponse(Call call, Response response)
+                                {
+                                    MessageResultDto result = (MessageResultDto) response.body();
+                                    JwtSecurityService jwtService = (JwtSecurityService) HomeApplication.getInstance();
+
+                                    jwtService.saveJwtToken(result.getToken());
+
+                                    Intent intent = new Intent(GroupChatActivity.this, MainActivity.class);
+                                    startActivity(intent);
+                                }
+
+                                @Override
+                                public void onFailure(Call call, Throwable t)
+                                {
+                                    Toast.makeText(GroupChatActivity.this, "Not to day!", Toast.LENGTH_SHORT).show();
+                                    t.printStackTrace();
+                                }
+                            });
                     binding.edMessage.setText("");
                 }
             }
         });
-//        binding.btnBack.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                finish();
-//            }
-//        });
 
         binding.imageProfile.setOnClickListener(new View.OnClickListener()
         {
@@ -507,40 +535,40 @@ public class GroupChatActivity extends AppCompatActivity
         {
             Uri selectedImage = data.getData();
             Calendar calendar = Calendar.getInstance();
-            StorageReference reference = storage.getReference().child("chats").child(calendar.getTimeInMillis() + "");
+            //StorageReference reference = storage.getReference().child("chats").child(calendar.getTimeInMillis() + "");
 
             dialog.show();
 
-            reference.putFile(selectedImage).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>()
-            {
-                @Override
-                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task)
-                {
-                    dialog.dismiss();
-
-                    if(task.isSuccessful())
-                    {
-                        reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>()
-                        {
-                            @Override
-                            public void onSuccess(Uri uri)
-                            {
-                                String filePath = uri.toString();
-                                String messageTxt = binding.edMessage.getText().toString();
-                                Date date = new Date();
-                                Message message = new Message(messageTxt, senderUid, date.getTime());
-
-                                message.setMessage("photo");
-                                message.setImageUrl(filePath);
-                                binding.edMessage.setText("");
-                                database.getReference().child("public").push().setValue(message);
-
-                                Toast.makeText(GroupChatActivity.this, filePath, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                }
-            });
+//            reference.putFile(selectedImage).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>()
+//            {
+//                @Override
+//                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task)
+//                {
+//                    dialog.dismiss();
+//
+//                    if(task.isSuccessful())
+//                    {
+//                        reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>()
+//                        {
+//                            @Override
+//                            public void onSuccess(Uri uri)
+//                            {
+//                                String filePath = uri.toString();
+//                                String messageTxt = binding.edMessage.getText().toString();
+//                                Date date = new Date();
+//                                Message message = new Message(messageTxt, senderUid, date.getTime());
+//
+//                                message.setMessage("photo");
+//                                message.setImageUrl(filePath);
+//                                binding.edMessage.setText("");
+//                                database.getReference().child("public").push().setValue(message);
+//
+//                                Toast.makeText(GroupChatActivity.this, filePath, Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
+//                    }
+//                }
+//            });
 
             imageUri = data.getData();
 
@@ -576,21 +604,21 @@ public class GroupChatActivity extends AppCompatActivity
                     binding.layoutActions.setVisibility(View.GONE);
                     isActionShown = false;
 
-                    new FirebaseService(GroupChatActivity.this).uploadImageToFireBaseStorage(imageUri, new FirebaseService.OnCallBack()
-                    {
-                        @Override
-                        public void onUploadSuccess(String imageUrl)
-                        {
-                            chatService.sendImage(imageUrl);
-                            progressDialog.dismiss();
-                        }
-
-                        @Override
-                        public void onUploadFailed(Exception e)
-                        {
-                            e.printStackTrace();
-                        }
-                    });
+//                    new FirebaseService(GroupChatActivity.this).uploadImageToFireBaseStorage(imageUri, new FirebaseService.OnCallBack()
+//                    {
+//                        @Override
+//                        public void onUploadSuccess(String imageUrl)
+//                        {
+//                            chatService.sendImage(imageUrl);
+//                            progressDialog.dismiss();
+//                        }
+//
+//                        @Override
+//                        public void onUploadFailed(Exception e)
+//                        {
+//                            e.printStackTrace();
+//                        }
+//                    });
                 }
 
             }

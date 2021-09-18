@@ -2,8 +2,11 @@ package com.example.catsapp.Helpers;
 
 import com.example.catsapp.Models.LoginDto;
 import com.example.catsapp.Models.LoginResultDto;
+import com.example.catsapp.Models.Message;
+import com.example.catsapp.Models.MessageResultDto;
 import com.example.catsapp.Models.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -26,4 +29,8 @@ public interface JSONPlaceHolderApi
 
     @POST("/api/account/login")
     public Call<LoginResultDto> login(@Body LoginDto loginDto);
+
+
+    @POST("/api/Messages/setMessage")
+    public Call<MessageResultDto> sendMessage(@Body Message messageResultDto);
 }

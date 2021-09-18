@@ -34,6 +34,7 @@ import androidx.databinding.DataBindingUtil;
 import com.bumptech.glide.Glide;
 import com.example.catsapp.BuildConfig;
 import com.example.catsapp.Helpers.Common;
+import com.example.catsapp.Helpers.DataStatic;
 import com.example.catsapp.R;
 import com.example.catsapp.databinding.ActivityProfileBinding;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -59,8 +60,8 @@ import java.util.Objects;
 public class ProfileActivity extends AppCompatActivity
 {
     private ActivityProfileBinding binding;
-    private FirebaseUser firebaseUser;
-    private FirebaseFirestore firestore;
+    //private FirebaseUser firebaseUser;
+    //private FirebaseFirestore firestore;
 
     private BottomSheetDialog bottomSheetDialog, bsDialogEditName;
     private ProgressDialog progressDialog;
@@ -78,14 +79,14 @@ public class ProfileActivity extends AppCompatActivity
         setSupportActionBar(binding.toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        firestore = FirebaseFirestore.getInstance();
-        progressDialog = new ProgressDialog(this);
-
-        if (firebaseUser!=null)
-        {
-            getInfo();
-        }
+//        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+//        firestore = FirebaseFirestore.getInstance();
+//        progressDialog = new ProgressDialog(this);
+//
+//        if (firebaseUser!=null)
+//        {
+//            getInfo();
+//        }
 
         initActionClick();
     }
@@ -209,6 +210,8 @@ public class ProfileActivity extends AppCompatActivity
             File file = File.createTempFile("IMG_" + timeStamp, ".jpg", getExternalFilesDir(Environment.DIRECTORY_PICTURES));
             imageUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file);
 
+            DataStatic.image = imageUri.toString();
+
             intent.putExtra(MediaStore.EXTRA_OUTPUT,  imageUri);
             intent.putExtra("listPhotoName", imageFileName);
             startActivityForResult(intent, 440);
@@ -273,28 +276,28 @@ public class ProfileActivity extends AppCompatActivity
 
     private void getInfo()
     {
-        firestore.collection("Users").document(firebaseUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>()
-        {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                String userName = documentSnapshot.getString("userName");
-                String userPhone = documentSnapshot.getString("userPhone");
-                String imageProfile = documentSnapshot.getString("imageProfile");
-
-               binding.tvUsername.setText(userName);
-                binding.tvPhone.setText(userPhone);
-                Glide.with(ProfileActivity.this).load(imageProfile).into(binding.imageProfile);
-
-
-            }
-        }).addOnFailureListener(new OnFailureListener()
-        {
-            @Override
-            public void onFailure(@NonNull Exception e)
-            {
-
-            }
-        });
+//        firestore.collection("Users").document(firebaseUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>()
+//        {
+//            @Override
+//            public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                String userName = documentSnapshot.getString("userName");
+//                String userPhone = documentSnapshot.getString("userPhone");
+//                String imageProfile = documentSnapshot.getString("imageProfile");
+//
+//               binding.tvUsername.setText(userName);
+//                binding.tvPhone.setText(userPhone);
+//                Glide.with(ProfileActivity.this).load(imageProfile).into(binding.imageProfile);
+//
+//
+//            }
+//        }).addOnFailureListener(new OnFailureListener()
+//        {
+//            @Override
+//            public void onFailure(@NonNull Exception e)
+//            {
+//
+//            }
+//        });
     }
 
     private void openGallery()
@@ -315,6 +318,8 @@ public class ProfileActivity extends AppCompatActivity
         if (requestCode == IMAGE_GALLERY_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null)
         {
             imageUri = data.getData();
+
+            DataStatic.image = imageUri.toString();
 
             uploadToFirebase();
         }
@@ -340,60 +345,60 @@ public class ProfileActivity extends AppCompatActivity
             progressDialog.setMessage("Uploading...");
             progressDialog.show();
 
-            StorageReference riversRef = FirebaseStorage.getInstance().getReference().child("ImagesProfile/" + System.currentTimeMillis()+"."+getFileExtention(imageUri));
+            //StorageReference riversRef = FirebaseStorage.getInstance().getReference().child("ImagesProfile/" + System.currentTimeMillis()+"."+getFileExtention(imageUri));
 
-            riversRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>()
-            {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot)
-                {
-                    Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
-
-                    while (!urlTask.isSuccessful());
-                    Uri downloadUrl = urlTask.getResult();
-
-                    final String sdownload_url = String.valueOf(downloadUrl);
-                    HashMap<String, Object> hashMap = new HashMap<>();
-                    hashMap.put("imageProfile", sdownload_url);
-
-                    progressDialog.dismiss();
-
-                    firestore.collection("Users").document(firebaseUser.getUid()).update(hashMap)
-                            .addOnSuccessListener(new OnSuccessListener<Void>()
-                            {
-                                @Override
-                                public void onSuccess(Void aVoid)
-                                {
-                                    Toast.makeText(getApplicationContext(),"upload successfully",Toast.LENGTH_SHORT).show();
-
-                                    getInfo();
-                                }
-                            });
-                }
-            }).addOnFailureListener(new OnFailureListener()
-            {
-                @Override
-                public void onFailure(@NonNull Exception e)
-                {
-                    Toast.makeText(getApplicationContext(),"upload Failed",Toast.LENGTH_SHORT).show();
-
-                    progressDialog.dismiss();
-                }
-            });
+//            riversRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>()
+//            {
+//                @Override
+//                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot)
+//                {
+//                    Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
+//
+//                    while (!urlTask.isSuccessful());
+//                    Uri downloadUrl = urlTask.getResult();
+//
+//                    final String sdownload_url = String.valueOf(downloadUrl);
+//                    HashMap<String, Object> hashMap = new HashMap<>();
+//                    hashMap.put("imageProfile", sdownload_url);
+//
+//                    progressDialog.dismiss();
+//
+//                    firestore.collection("Users").document(firebaseUser.getUid()).update(hashMap)
+//                            .addOnSuccessListener(new OnSuccessListener<Void>()
+//                            {
+//                                @Override
+//                                public void onSuccess(Void aVoid)
+//                                {
+//                                    Toast.makeText(getApplicationContext(),"upload successfully",Toast.LENGTH_SHORT).show();
+//
+//                                    getInfo();
+//                                }
+//                            });
+//                }
+//            }).addOnFailureListener(new OnFailureListener()
+//            {
+//                @Override
+//                public void onFailure(@NonNull Exception e)
+//                {
+//                    Toast.makeText(getApplicationContext(),"upload Failed",Toast.LENGTH_SHORT).show();
+//
+//                    progressDialog.dismiss();
+//                }
+//            });
         }
     }
 
     private void updateName(String newName)
     {
-        firestore.collection("Users").document(firebaseUser.getUid()).update("userName",newName).addOnSuccessListener(new OnSuccessListener<Void>()
-        {
-            @Override
-            public void onSuccess(Void aVoid)
-            {
-                Toast.makeText(getApplicationContext(),"Update Successful",Toast.LENGTH_SHORT).show();
-                getInfo();
-            }
-        });
+//        firestore.collection("Users").document(firebaseUser.getUid()).update("userName",newName).addOnSuccessListener(new OnSuccessListener<Void>()
+//        {
+//            @Override
+//            public void onSuccess(Void aVoid)
+//            {
+//                Toast.makeText(getApplicationContext(),"Update Successful",Toast.LENGTH_SHORT).show();
+//                getInfo();
+//            }
+//        });
     }
 
     private void showDialogSignOut()

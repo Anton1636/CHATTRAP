@@ -187,56 +187,56 @@ public class LoginActivity extends AppCompatActivity
             }
 
             final String _completePhoneNumber = countryCodePicker.getSelectedCountryCodeWithPlus() + _phoneNumber;
-            Query checkUser = FirebaseDatabase.getInstance().getReference("Users").orderByChild("phoneNo").equalTo(_completePhoneNumber);
-            DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
+           // Query checkUser = FirebaseDatabase.getInstance().getReference("Users").orderByChild("phoneNo").equalTo(_completePhoneNumber);
+           // DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
             User user = new User();
 
-            checkUser.addListenerForSingleValueEvent(new ValueEventListener()
-            {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot)
-                {
-                   // DataSnapshot peopleNumber = snapshot.child("Users").getChildren();//.child(user.getId()).child("phoneNo").getValue(Integer.class);
-
-                    for (DataSnapshot postSnapshot: snapshot.getChildren())
-                    {
-                        // TODO: handle the post
-                        Object data= postSnapshot.getValue();
-                    }
-//                    if (_completePhoneNumber == String.valueOf(peopleNumber))
-//                    {
-//                        phoneNumber.setError(null);
-//                        phoneNumber.setErrorEnabled(false);
+//            checkUser.addListenerForSingleValueEvent(new ValueEventListener()
+//            {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot snapshot)
+//                {
+//                   // DataSnapshot peopleNumber = snapshot.child("Users").getChildren();//.child(user.getId()).child("phoneNo").getValue(Integer.class);
 //
-//                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-//                        intent.putExtra("phoneNo", _completePhoneNumber);
-//                        intent.putExtra("whatToDo", "updateData");
-//                        startActivity(intent);
-//                        finish();
+//                    for (DataSnapshot postSnapshot: snapshot.getChildren())
+//                    {
+//                        // TODO: handle the post
+//                        Object data= postSnapshot.getValue();
 //                    }
-//                    else {
-//                        phoneNumber.setError("No such user exist!");
-//                        phoneNumber.requestFocus();
-//                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error)
-                {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
-
-                    builder.setMessage("This phone does not belong to any user  ").setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-                            {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which)
-                                {
-                                    startActivity(new Intent(getApplicationContext(), StartUpActivity.class));
-
-                                    finish();
-                                }
-                            });
-                }
-            });
+////                    if (_completePhoneNumber == String.valueOf(peopleNumber))
+////                    {
+////                        phoneNumber.setError(null);
+////                        phoneNumber.setErrorEnabled(false);
+////
+////                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+////                        intent.putExtra("phoneNo", _completePhoneNumber);
+////                        intent.putExtra("whatToDo", "updateData");
+////                        startActivity(intent);
+////                        finish();
+////                    }
+////                    else {
+////                        phoneNumber.setError("No such user exist!");
+////                        phoneNumber.requestFocus();
+////                    }
+//                }
+//
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError error)
+//                {
+//                    AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+//
+//                    builder.setMessage("This phone does not belong to any user  ").setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+//                            {
+//                                @Override
+//                                public void onClick(DialogInterface dialog, int which)
+//                                {
+//                                    startActivity(new Intent(getApplicationContext(), StartUpActivity.class));
+//
+//                                    finish();
+//                                }
+//                            });
+//                }
+//            });
 
             return true;
         }

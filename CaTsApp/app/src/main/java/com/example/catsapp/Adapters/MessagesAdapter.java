@@ -51,8 +51,8 @@ public class MessagesAdapter extends RecyclerView.Adapter
     String senderRoom;
     String receiverRoom;
 
-    private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-    private FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+//    private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+//    private FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private String receiverID;
 
     public MessagesAdapter(Context context, ArrayList<Message> messages, String senderRoom, String receiverRoom)
@@ -93,13 +93,14 @@ public class MessagesAdapter extends RecyclerView.Adapter
     {
         Message message = messages.get(position);
 
-        if(FirebaseAuth.getInstance().getUid().equals(message.getSenderId()))
-        {
-            return ITEM_SENT;
-        }
-        else {
-            return ITEM_RECEIVE;
-        }
+//        if(FirebaseAuth.getInstance().getUid().equals(message.getSenderId()))
+//        {
+//            return ITEM_SENT;
+//        }
+//        else {
+//            return ITEM_RECEIVE;
+//        }
+        return position;
     }
 
     @Override
@@ -136,8 +137,8 @@ public class MessagesAdapter extends RecyclerView.Adapter
 
             message.setFeeling(pos);
 
-            FirebaseDatabase.getInstance().getReference().child("chats").child(senderRoom).child("messages").child(message.getMessageId()).setValue(message);
-            FirebaseDatabase.getInstance().getReference().child("chats").child(receiverRoom).child("messages").child(message.getMessageId()).setValue(message);
+            //FirebaseDatabase.getInstance().getReference().child("chats").child(senderRoom).child("messages").child(message.getMessageId()).setValue(message);
+           // FirebaseDatabase.getInstance().getReference().child("chats").child(receiverRoom).child("messages").child(message.getMessageId()).setValue(message);
 
             return true; // true is closing popup, false is requesting a new selection
         });
@@ -203,8 +204,8 @@ public class MessagesAdapter extends RecyclerView.Adapter
                             message.setMessage("This message is removed.");
                             message.setFeeling(-1);
 
-                            FirebaseDatabase.getInstance().getReference().child("chats").child(senderRoom).child("messages").child(message.getMessageId()).setValue(message);
-                            FirebaseDatabase.getInstance().getReference().child("chats").child(receiverRoom).child("messages").child(message.getMessageId()).setValue(message);
+                            //FirebaseDatabase.getInstance().getReference().child("chats").child(senderRoom).child("messages").child(message.getMessageId()).setValue(message);
+                           // FirebaseDatabase.getInstance().getReference().child("chats").child(receiverRoom).child("messages").child(message.getMessageId()).setValue(message);
 
                             dialog.dismiss();
                         }
@@ -215,7 +216,7 @@ public class MessagesAdapter extends RecyclerView.Adapter
                         @Override
                         public void onClick(View v)
                         {
-                            FirebaseDatabase.getInstance().getReference().child("chats").child(senderRoom).child("messages").child(message.getMessageId()).setValue(null);
+                            //FirebaseDatabase.getInstance().getReference().child("chats").child(senderRoom).child("messages").child(message.getMessageId()).setValue(null);
 
                             dialog.dismiss();
                         }
@@ -294,8 +295,8 @@ public class MessagesAdapter extends RecyclerView.Adapter
                             message.setMessage("This message is removed.");
                             message.setFeeling(-1);
 
-                            FirebaseDatabase.getInstance().getReference().child("chats").child(senderRoom).child("messages").child(message.getMessageId()).setValue(message);
-                            FirebaseDatabase.getInstance().getReference().child("chats").child(receiverRoom).child("messages").child(message.getMessageId()).setValue(message);
+                           // FirebaseDatabase.getInstance().getReference().child("chats").child(senderRoom).child("messages").child(message.getMessageId()).setValue(message);
+                           // FirebaseDatabase.getInstance().getReference().child("chats").child(receiverRoom).child("messages").child(message.getMessageId()).setValue(message);
 
                             dialog.dismiss();
                         }
@@ -306,7 +307,7 @@ public class MessagesAdapter extends RecyclerView.Adapter
                         @Override
                         public void onClick(View v)
                         {
-                            FirebaseDatabase.getInstance().getReference().child("chats").child(senderRoom).child("messages").child(message.getMessageId()).setValue(null);
+                            //FirebaseDatabase.getInstance().getReference().child("chats").child(senderRoom).child("messages").child(message.getMessageId()).setValue(null);
 
                             dialog.dismiss();
                         }
@@ -369,50 +370,50 @@ public class MessagesAdapter extends RecyclerView.Adapter
         @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("hh:mm a");
         String currentTime = df.format(currentDateTime.getTime());
 
-        return today+", "+currentTime;
+        return today + ", " + currentTime;
     }
 
     public void sendVoice(String authPath)
     {
         final Uri uriAudio = Uri.fromFile(new File(authPath));
-        final StorageReference audioRef = FirebaseStorage.getInstance().getReference().child("CaTsApp/Voice/" + System.currentTimeMillis());
+       // final StorageReference audioRef = FirebaseStorage.getInstance().getReference().child("CaTsApp/Voice/" + System.currentTimeMillis());
 
-        audioRef.putFile(uriAudio).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>()
-        {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot audioSnapshot)
-            {
-                Task<Uri> uriTask = audioSnapshot.getStorage().getDownloadUrl();
-
-                while (!uriTask.isSuccessful());
-
-                Uri downloadUrl = uriTask.getResult();
-                String voiceUrl = String.valueOf(downloadUrl);
-
-                Message message = new Message(getCurrentDate(), "", voiceUrl, "VOICE", firebaseUser.getUid(), receiverID);
-
-                reference.child("ChatActivity").push().setValue(message).addOnSuccessListener(new OnSuccessListener<Void>()
-                {
-                    @Override
-                    public void onSuccess(Void aVoid)
-                    {
-                        Log.d("Send", "onSuccess:");
-                    }
-                }).addOnFailureListener(new OnFailureListener()
-                {
-                    @Override
-                    public void onFailure(@NonNull Exception e)
-                    {
-                        Log.d("Send", "onFailure:" + e.getMessage());
-                    }
-                });
-
-                DatabaseReference messageRef1 = FirebaseDatabase.getInstance().getReference("ChatList").child(firebaseUser.getUid()).child(receiverID);
-                messageRef1.child("messageId").setValue(receiverID);
-
-                DatabaseReference messageRef2 = FirebaseDatabase.getInstance().getReference("ChatList").child(receiverID).child(firebaseUser.getUid());
-                messageRef2.child("messageId").setValue(firebaseUser.getUid());
-            }
-        });
+//        audioRef.putFile(uriAudio).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>()
+//        {
+//            @Override
+//            public void onSuccess(UploadTask.TaskSnapshot audioSnapshot)
+//            {
+//                Task<Uri> uriTask = audioSnapshot.getStorage().getDownloadUrl();
+//
+//                while (!uriTask.isSuccessful());
+//
+//                Uri downloadUrl = uriTask.getResult();
+//                String voiceUrl = String.valueOf(downloadUrl);
+//
+//                Message message = new Message(getCurrentDate(), "", voiceUrl, "VOICE", firebaseUser.getUid(), receiverID);
+//
+//                reference.child("ChatActivity").push().setValue(message).addOnSuccessListener(new OnSuccessListener<Void>()
+//                {
+//                    @Override
+//                    public void onSuccess(Void aVoid)
+//                    {
+//                        Log.d("Send", "onSuccess:");
+//                    }
+//                }).addOnFailureListener(new OnFailureListener()
+//                {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e)
+//                    {
+//                        Log.d("Send", "onFailure:" + e.getMessage());
+//                    }
+//                });
+//
+//                DatabaseReference messageRef1 = FirebaseDatabase.getInstance().getReference("ChatList").child(firebaseUser.getUid()).child(receiverID);
+//                messageRef1.child("messageId").setValue(receiverID);
+//
+//                DatabaseReference messageRef2 = FirebaseDatabase.getInstance().getReference("ChatList").child(receiverID).child(firebaseUser.getUid());
+//                messageRef2.child("messageId").setValue(firebaseUser.getUid());
+//            }
+//        });
     }
 }

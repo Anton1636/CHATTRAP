@@ -27,7 +27,7 @@ public class ChatsAdapder extends RecyclerView.Adapter<ChatsAdapder.ViewHolder>
     private Context context;
     public static final int MSG_TYPE_LEFT = 0;
     public static final int MSG_TYPE_RIGHT = 1;
-    private FirebaseUser firebaseUser;
+   // private FirebaseUser firebaseUser;
     private ImageButton tmpBtnPlay;
     private AudioService audioService;
 
@@ -149,14 +149,15 @@ public class ChatsAdapder extends RecyclerView.Adapter<ChatsAdapder.ViewHolder>
     @Override
     public int getItemViewType(int position)
     {
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (list.get(position).getSenderId().equals(firebaseUser.getUid()))
-        {
-            return MSG_TYPE_RIGHT;
-        }
-        else
-        {
-            return MSG_TYPE_LEFT;
-        }
+//        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+//        if (list.get(position).getSenderId().equals(firebaseUser.getUid()))
+//        {
+//            return MSG_TYPE_RIGHT;
+//        }
+//        else
+//        {
+//            return MSG_TYPE_LEFT;
+//        }
+        return position;
     }
 }

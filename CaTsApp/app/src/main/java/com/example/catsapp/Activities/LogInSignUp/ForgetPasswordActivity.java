@@ -28,7 +28,6 @@ import com.hbb20.CountryCodePicker;
 
 public class ForgetPasswordActivity extends AppCompatActivity
 {
-
     private ImageView screenIcon;
     private TextView title, description;
     public TextInputLayout phoneNumberTextField;
@@ -76,46 +75,46 @@ public class ForgetPasswordActivity extends AppCompatActivity
             _phoneNumber = _phoneNumber.substring(1);
         }
 
-        final String _completePhoneNumber = countryCodePicker.getSelectedCountryCodeWithPlus() + _phoneNumber;
-        Query checkUser = FirebaseDatabase.getInstance().getReference("Users").orderByChild("phoneNo").equalTo(_completePhoneNumber);
+        //final String _completePhoneNumber = countryCodePicker.getSelectedCountryCodeWithPlus() + _phoneNumber;
+       // Query checkUser = FirebaseDatabase.getInstance().getReference("Users").orderByChild("phoneNo").equalTo(_completePhoneNumber);
 
-        checkUser.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    phoneNumberTextField.setError(null);
-                    phoneNumberTextField.setErrorEnabled(false);
-
-                    Intent intent = new Intent(ForgetPasswordActivity.this, MakeSelectionActivity.class);
-                    intent.putExtra("phoneNo", _completePhoneNumber);
-                    intent.putExtra("whatToDo", "updateData");
-                    startActivity(intent);
-                    finish();
-
-                    progressBar.setVisibility(View.GONE);
-                } else {
-                    progressBar.setVisibility(View.GONE);
-                    phoneNumberTextField.setError("No such user exist!");
-                    phoneNumberTextField.requestFocus();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(ForgetPasswordActivity.this);
-
-                builder.setMessage("This phone does not belong to any user  ")
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-                                startActivity(new Intent(getApplicationContext(), StartUpActivity.class));
-                                finish();
-                            }
-                        });
-            }
-        });
+//        checkUser.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if (snapshot.exists()) {
+//                    phoneNumberTextField.setError(null);
+//                    phoneNumberTextField.setErrorEnabled(false);
+//
+//                    Intent intent = new Intent(ForgetPasswordActivity.this, MakeSelectionActivity.class);
+//                    intent.putExtra("phoneNo", _completePhoneNumber);
+//                    intent.putExtra("whatToDo", "updateData");
+//                    startActivity(intent);
+//                    finish();
+//
+//                    progressBar.setVisibility(View.GONE);
+//                } else {
+//                    progressBar.setVisibility(View.GONE);
+//                    phoneNumberTextField.setError("No such user exist!");
+//                    phoneNumberTextField.requestFocus();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                AlertDialog.Builder builder = new AlertDialog.Builder(ForgetPasswordActivity.this);
+//
+//                builder.setMessage("This phone does not belong to any user  ")
+//                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+//                        {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which)
+//                            {
+//                                startActivity(new Intent(getApplicationContext(), StartUpActivity.class));
+//                                finish();
+//                            }
+//                        });
+//            }
+//        });
     }
 
     public boolean validateFields()

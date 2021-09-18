@@ -47,7 +47,6 @@ public class SignUp2ndActivity extends AppCompatActivity {
         titleText = findViewById(R.id.signUp_text);
         datePicker = findViewById(R.id.age_picker);
         spinner = findViewById(R.id.spinner);
-
         adapter = new ArrayAdapter(getApplicationContext(), R.layout.selected_item, genders);
         adapter.setDropDownViewResource(R.layout.dropdowm_item);
         spinner.setAdapter(adapter);
